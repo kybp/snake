@@ -19,11 +19,23 @@ public:
     void draw();
     void grow();
     bool move();
+    int xPosition();
+    int yPosition();
 };
 
 inline void Snake::grow()
 {
     needsToGrow = true;
+}
+
+inline int Snake::xPosition()
+{
+    return body.back().xPosition();
+}
+
+inline int Snake::yPosition()
+{
+    return body.back().yPosition();
 }
 
 #endif

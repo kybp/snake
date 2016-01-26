@@ -6,7 +6,8 @@ Snake::Snake(SDL_Surface *surface, int x, int y, Direction direction)
     this->needsToGrow = false;
     this->surface = surface;
     this->direction = direction;
-    body = std::vector<Cell>(1, Cell(surface, x, y));
+    auto color = SDL_MapRGB(surface->format, 0, 127, 127);
+    body = std::vector<Cell>(1, Cell(surface, x, y, color));
 }
 
 void Snake::changeDirection(Direction direction)

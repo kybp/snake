@@ -7,7 +7,7 @@ using Direction::DOWN;
 using Direction::LEFT;
 using Direction::RIGHT;
 
-Cell::Cell(SDL_Surface *surface, int x, int y)
+Cell::Cell(SDL_Surface *surface, int x, int y, Uint32 color)
 {
     this->surface = surface;
     SDL_Rect *position = new SDL_Rect;
@@ -16,7 +16,7 @@ Cell::Cell(SDL_Surface *surface, int x, int y)
     position->w = width;
     position->h = height;
     this->position = position;
-    this->color = SDL_MapRGB(surface->format, 0, 127, 127);
+    this->color = color;
 }
 
 void Cell::move(Direction direction)

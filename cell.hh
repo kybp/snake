@@ -6,8 +6,9 @@
 
 class Cell {
 public:
-    Cell(SDL_Surface *surface, int x, int y);
-    Cell(const Cell& rhs) : Cell(rhs.surface, rhs.xPosition(), rhs.yPosition())
+    Cell(SDL_Surface *surface, int x, int y, Uint32 color);
+    Cell(const Cell& rhs) :
+        Cell(rhs.surface, rhs.xPosition(), rhs.yPosition(), rhs.color)
         {};
     void draw();
     void move(Direction direction);
