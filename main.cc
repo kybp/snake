@@ -4,7 +4,6 @@
 #include "direction.hh"
 #include "snake.hh"
 
-using namespace std;
 using Direction::UP;
 using Direction::DOWN;
 using Direction::LEFT;
@@ -12,8 +11,8 @@ using Direction::RIGHT;
 
 class SnakeGame {
 public:
-    SnakeGame();
-    ~SnakeGame();
+    SnakeGame(SDL_Window *winodw, SDL_Surface *surface,
+              int widthInCells, int heightInCells);
     void draw();
     void generateFood();
     void gameOver();
@@ -21,14 +20,12 @@ public:
     void mainLoop();
     void run();
     void update();
-    static const int windowWidth  = 640;
-    static const int windowHeight = 480;
     Uint32 maxDelay = 200;
 private:
     Cell *food;
     Uint32 foodColor;
-    static const int maxX = windowWidth  / Cell::width;
-    static const int maxY = windowHeight / Cell::height;
+    const int heightInCells;
+    const int widthInCells;
     bool paused = false;
     bool running = true;
     int score;
@@ -37,26 +34,16 @@ private:
     SDL_Window *window;
 };
 
-SnakeGame::SnakeGame()
+SnakeGame::SnakeGame(SDL_Window *window, SDL_Surface *surface,
+                     int widthInCells, int heightInCells) :
+    heightInCells(heightInCells), widthInCells(widthInCells),
+    score(0), surface(surface), window(window)
 {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        cerr << "Could not initialize SDL." << endl;
-        exit(1);
-    }
-    window = SDL_CreateWindow("Snake",
-                              SDL_WINDOWPOS_UNDEFINED,
-                              SDL_WINDOWPOS_UNDEFINED,
-                              windowWidth, windowHeight, SDL_WINDOW_SHOWN);
-    surface = SDL_GetWindowSurface(window);
-    snake = new Snake(surface, windowWidth / 2, windowHeight / 2, LEFT);
+    int pixelHeight = heightInCells * Cell::height;
+    int pixelWidth  = widthInCells  * Cell::width;
+    snake = new Snake(surface, pixelWidth / 2, pixelHeight / 2, LEFT);
     foodColor = SDL_MapRGB(surface->format, 255, 0, 0);
     generateFood();
-}
-
-SnakeGame::~SnakeGame()
-{
-    SDL_DestroyWindow(window);
-    SDL_Quit();
 }
 
 inline void SnakeGame::draw()
@@ -71,15 +58,15 @@ void SnakeGame::gameOver()
 {
     // This is a placeholder. Eventually it will prompt the user to
     // press a button to start a new game.
-    cout << "You died with " << score << " points" << endl;
+    std::cout << "You died with " << score << " points" << std::endl;
     running = false;
 }
 
 void SnakeGame::generateFood()
 {
     do {
-        int x = (rand() % maxX) * Cell::width;
-        int y = (rand() % maxY) * Cell::height;
+        int x = (rand() % widthInCells) * Cell::width;
+        int y = (rand() % heightInCells) * Cell::height;
         food = new Cell(surface, x, y, foodColor);
     } while (snake->collidesWith(*food) && (delete food, true));
 }
@@ -101,6 +88,9 @@ bool SnakeGame::handleKey(const SDL_Keycode keycode)
             break;
         case SDLK_RIGHT:
             snake->changeDirection(RIGHT);
+            break;
+        case SDLK_p:
+            paused = true;
             break;
         case SDLK_q:
             running = false;
@@ -162,8 +152,8 @@ void SnakeGame::run()
 inline void SnakeGame::update()
 {
     if (snake->move() || snake->xPosition() < 0 || snake->yPosition() < 0 ||
-        snake->xPosition() / Cell::width >= maxX ||
-        snake->yPosition() / Cell::height >= maxY) {
+        snake->xPosition() / Cell::width >= widthInCells ||
+        snake->yPosition() / Cell::height >= heightInCells) {
         running = false;
     } else if (snake->collidesWith(*food)) {
         delete food;
@@ -175,5 +165,18 @@ inline void SnakeGame::update()
 
 int main(void)
 {
-    SnakeGame().run();
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        std::cerr << "Could not initialize SDL." << std::endl;
+        exit(1);
+    }
+    SDL_Window *window = SDL_CreateWindow(
+        "Snake",
+        SDL_WINDOWPOS_UNDEFINED,
+        SDL_WINDOWPOS_UNDEFINED,
+        20 * Cell::width, 20 * Cell::height,
+        SDL_WINDOW_SHOWN);
+    SDL_Surface *surface = SDL_GetWindowSurface(window);
+    SnakeGame(window, surface, 20, 20).run();
+    SDL_DestroyWindow(window);
+    SDL_Quit();
 }
