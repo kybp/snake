@@ -1,13 +1,27 @@
 #include "snake.hh"
 #include "cell.hh"
 
-Snake::Snake(SDL_Surface *surface, int x, int y, Direction direction)
+using Direction::UP;
+using Direction::DOWN;
+using Direction::LEFT;
+using Direction::RIGHT;
+
+Snake::Snake(SDL_Surface *surface, int x, int y, Direction direction,
+             int screenWidth, int screenHeight,
+             decltype(body.size()) initialLength)
 {
     this->needsToGrow = false;
-    this->surface = surface;
-    this->direction = direction;
+    this->surface     = surface;
+    this->direction   = direction;
     auto color = SDL_MapRGB(surface->format, 0, 127, 127);
-    body = std::vector<Cell>(1, Cell(surface, x, y, color));
+    if (initialLength == 0) {
+        throw std::invalid_argument("Initial snake length cannot be zero");
+    } else if (x > screenWidth || y > screenHeight) {
+        throw std::invalid_argument("Initial snake coordinates not on screen");
+    } else {
+        body = std::vector<Cell>(1, Cell(surface, x, y, color));
+        growToInitialLength(initialLength, screenWidth, screenHeight);
+    }
 }
 
 void Snake::changeDirection(Direction direction)
@@ -30,6 +44,43 @@ void Snake::draw()
 {
     for (Cell cell : body) {
         cell.draw();
+    }
+}
+
+void Snake::growToInitialLength(decltype(body.size()) initialLength,
+                                int screenWidth, int screenHeight)
+{
+    int x = xPosition(), y = yPosition();
+    Direction primaryDirection = direction;
+    Direction secondaryDirection;
+    switch (direction) {
+    case UP: case DOWN:
+        secondaryDirection = (screenWidth - x) > x ? RIGHT : LEFT;
+        break;
+    case LEFT: case RIGHT:
+        secondaryDirection = (screenHeight - y) > y ? DOWN : UP;
+        break;
+    }
+    while (--initialLength) {
+        Cell next(body.back());
+        next.move(direction);
+        x = next.xPosition(), y = next.yPosition();
+        // Give a two cell border to prevent immediate deaths
+        if (x < Cell::width  * 2 || x >= screenWidth  - Cell::width * 2 ||
+            y < Cell::height * 2 || y >= screenHeight - Cell::height * 2) {
+            if (direction == secondaryDirection) {
+                throw std::runtime_error("Initial snake length too large");
+            } else {
+                direction = secondaryDirection;
+            }
+        } else {
+            grow();
+            move();
+            if (direction == secondaryDirection) {
+                primaryDirection = invert(primaryDirection);
+                direction = primaryDirection;
+            }
+        }
     }
 }
 

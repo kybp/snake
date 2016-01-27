@@ -2,5 +2,6 @@
 #define DIRECTION_HH
 
 enum class Direction { UP, DOWN, LEFT, RIGHT };
+Direction invert(Direction direction);
 
 #endif
