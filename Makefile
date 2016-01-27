@@ -10,7 +10,7 @@ snake.o: snake.cc snake.hh
 	g++ $(INCS) $(CPPFLAGS) -c snake.cc
 
 OBJS += cell.o
-cell.o: cell.hh cell.hh
+cell.o: cell.cc cell.hh
 	g++ $(INCS) $(CPPFLAGS) -c cell.cc
 
 clean:
