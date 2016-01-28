@@ -91,9 +91,12 @@ void Snake::growToInitialLength(decltype(body.size()) initialLength,
 
 bool Snake::move()
 {
+    Cell first = *body.begin();
     Cell next(body.back());
     next.move(direction);
-    if (collidesWith(next)) {
+    if (collidesWith(next) && 
+        !(first.xPosition() == next.xPosition() &&
+          first.yPosition() == next.yPosition())) {
         return true;
     } else {
         body.push_back(next);
