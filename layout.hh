@@ -15,6 +15,7 @@ public:
     unsigned getWidthInCells() const;
     unsigned getHeightInPixels() const;
     unsigned getWidthInPixels() const;
+    void updatePosition();
 private:
     std::vector<Cell *> layout;
     unsigned heightInPixels;
@@ -23,12 +24,12 @@ private:
 
 inline unsigned Layout::getHeightInCells() const
 {
-    return getHeightInPixels() / Cell::height;
+    return getHeightInPixels() / Cell::height();
 }
 
 inline unsigned Layout::getWidthInCells() const
 {
-    return getWidthInPixels() / Cell::width;
+    return getWidthInPixels() / Cell::width();
 }
 
 inline unsigned Layout::getHeightInPixels() const

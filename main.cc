@@ -45,8 +45,8 @@ SnakeGame::SnakeGame(SDL_Window *window, int widthInCells, int heightInCells,
     score(0), layout(new Layout(heightInCells, widthInCells)), window(window),
     surface(SDL_GetWindowSurface(window))
 {
-    int pixelHeight = heightInCells * Cell::height;
-    int pixelWidth  = widthInCells  * Cell::width;
+    int pixelHeight = heightInCells * Cell::height();
+    int pixelWidth  = widthInCells  * Cell::width();
     snake = new Snake(surface, pixelWidth / 2, pixelHeight / 2, LEFT,
                       pixelWidth, pixelHeight, initialLength);
     foodColor = SDL_MapRGB(surface->format, 0, 127, 0);
@@ -54,13 +54,13 @@ SnakeGame::SnakeGame(SDL_Window *window, int widthInCells, int heightInCells,
 }
 
 SnakeGame::SnakeGame(SDL_Window *window, const Layout *layout):
-    heightInCells(layout->getHeightInPixels() / Cell::height),
-    widthInCells(layout->getWidthInPixels() / Cell::width),
+    heightInCells(layout->getHeightInPixels() / Cell::height()),
+    widthInCells(layout->getWidthInPixels() / Cell::width()),
     score(0), layout(layout), window(window),
     surface(SDL_GetWindowSurface(window))
 {
-    snake = new Snake(surface, (layout->getWidthInCells() / 2) * Cell::width,
-                      (layout->getHeightInCells() / 2) * Cell::height,
+    snake = new Snake(surface, (layout->getWidthInCells() / 2) * Cell::width(),
+                      (layout->getHeightInCells() / 2) * Cell::height(),
                       LEFT);
     foodColor = SDL_MapRGB(surface->format, 0, 127, 0);
     generateFood();
@@ -94,8 +94,8 @@ void SnakeGame::gameOver()
 void SnakeGame::generateFood()
 {
     do {
-        int x = (rand() % widthInCells) * Cell::width;
-        int y = (rand() % heightInCells) * Cell::height;
+        int x = (rand() % widthInCells) * Cell::width();
+        int y = (rand() % heightInCells) * Cell::height();
         food = new Cell(surface, x, y, foodColor);
     } while ((snake->collidesWith(*food) ||
               layout->contains(*food)) &&
@@ -163,9 +163,12 @@ void SnakeGame::run()
 
 inline void SnakeGame::update()
 {
-    if (snake->move() || snake->xPosition() < 0 || snake->yPosition() < 0 ||
-        snake->xPosition() / Cell::width >= widthInCells ||
-        snake->yPosition() / Cell::height >= heightInCells) {
+    if (snake->move() ||
+        snake->xPosition() < 0 ||
+        snake->yPosition() < 0 ||
+        snake->xPosition() / Cell::width() >= widthInCells ||
+        snake->yPosition() / Cell::height() >= heightInCells ||
+        layout->contains(snake->head())) {
         alive = false;
     } else if (snake->collidesWith(*food)) {
         delete food;
@@ -178,6 +181,8 @@ inline void SnakeGame::update()
 int main(int argc, char **argv)
 {
     int w = 20, h = 20, initialLength = 4;
+    Cell::setWidth(40);
+    Cell::setHeight(40);
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cerr << "Could not initialize SDL." << std::endl;
@@ -188,7 +193,7 @@ int main(int argc, char **argv)
         "Snake",
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
-        w * Cell::width, h * Cell::height,
+        w * Cell::width(), h * Cell::height(),
         SDL_WINDOW_SHOWN);
     if (argc == 1) {
         for (;;) {

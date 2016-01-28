@@ -9,12 +9,18 @@ public:
     Cell(SDL_Surface *surface, int x, int y, Uint32 color);
     void draw() const;
     void move(Direction direction);
-    void setSurface(SDL_Surface *surface);
-    int xPosition() const;
-    int yPosition() const;
-    static const int width  = 40;
-    static const int height = 40;
+    void updatePosition();
+    int xPositionInPixels() const;
+    int yPositionInPixels() const;
+    int xPositionInCells() const;
+    int yPositionInCells() const;
+    static int height();
+    static int width();
+    static void setHeight(int height);
+    static void setWidth(int width);
 private:
+    static int h, w;
+    int x, y;
     SDL_Rect position;
     SDL_Surface *surface;
     Uint32 color;
@@ -25,19 +31,42 @@ inline void Cell::draw() const
     SDL_FillRect(surface, &position, color);
 }
 
-inline void Cell::setSurface(SDL_Surface *surface)
+inline void Cell::setHeight(int height)
 {
-    this->surface = surface;
+    h = height;
 }
 
-inline int Cell::xPosition() const
+inline void Cell::setWidth(int width)
 {
-    return position.x;
+    w = width;
 }
 
-inline int Cell::yPosition() const
+inline void Cell::updatePosition()
 {
-    return position.y;
+    position.x = xPositionInPixels();
+    position.y = yPositionInPixels();
+    position.w = width();
+    position.h = height();
+}
+
+inline int Cell::xPositionInCells() const
+{
+    return position.x / width();
+}
+
+inline int Cell::yPositionInCells() const
+{
+    return position.y / width();
+}
+
+inline int Cell::xPositionInPixels() const
+{
+    return xPositionInCells() * width();
+}
+
+inline int Cell::yPositionInPixels() const
+{
+    return yPositionInCells() * height();
 }
 
 #endif

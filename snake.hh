@@ -25,6 +25,7 @@ public:
     void grow();
     // move() returns true or false to indicate whether that move
     // caused the snake to run into itself
+    const Cell& head() const;
     bool move();
     int xPosition();
     int yPosition();
@@ -44,14 +45,19 @@ inline void Snake::grow()
     needsToGrow = true;
 }
 
+inline const Cell& Snake::head() const
+{
+    return *body.begin();
+}
+
 inline int Snake::xPosition()
 {
-    return body.back().xPosition();
+    return body.back().xPositionInPixels();
 }
 
 inline int Snake::yPosition()
 {
-    return body.back().yPosition();
+    return body.back().yPositionInPixels();
 }
 
 #endif

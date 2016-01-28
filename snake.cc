@@ -37,8 +37,8 @@ void Snake::changeDirection(Direction direction)
 bool Snake::collidesWith(const Cell& cell)
 {
     for (Cell other : body) {
-        if (cell.xPosition() == other.xPosition() &&
-            cell.yPosition() == other.yPosition()) {
+        if (cell.xPositionInPixels() == other.xPositionInPixels() &&
+            cell.yPositionInPixels() == other.yPositionInPixels()) {
             return true;
         }
     }
@@ -69,10 +69,10 @@ void Snake::growToInitialLength(decltype(body.size()) initialLength,
     while (--initialLength) {
         Cell next(body.back());
         next.move(direction);
-        x = next.xPosition(), y = next.yPosition();
+        x = next.xPositionInPixels(), y = next.yPositionInPixels();
         // Give a two cell border to prevent immediate deaths
-        if (x < Cell::width  * 2 || x >= screenWidth  - Cell::width * 2 ||
-            y < Cell::height * 2 || y >= screenHeight - Cell::height * 2) {
+        if (x < Cell::width()  * 2 || x >= screenWidth  - Cell::width()  * 2 ||
+            y < Cell::height() * 2 || y >= screenHeight - Cell::height() * 2) {
             if (direction == secondaryDirection) {
                 throw std::runtime_error("Initial snake length too large");
             } else {
@@ -95,8 +95,8 @@ bool Snake::move()
     Cell next(body.back());
     next.move(direction);
     if (collidesWith(next) && 
-        !(first.xPosition() == next.xPosition() &&
-          first.yPosition() == next.yPosition())) {
+        !(first.xPositionInPixels() == next.xPositionInPixels() &&
+          first.yPositionInPixels() == next.yPositionInPixels())) {
         return true;
     } else {
         body.push_back(next);

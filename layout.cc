@@ -7,8 +7,8 @@
 #include "layout.hh"
 
 Layout::Layout(int heightInCells, int widthInCells):
-    heightInPixels(heightInCells * Cell::height),
-    widthInPixels(widthInCells * Cell::width)
+    heightInPixels(heightInCells * Cell::height()),
+    widthInPixels(widthInCells   * Cell::width())
 {}
 
 Layout::Layout(std::string filename, SDL_Surface *surface)
@@ -19,13 +19,13 @@ Layout::Layout(std::string filename, SDL_Surface *surface)
     if (file) {
         std::string line;
         for (heightInPixels = 0; getline(file, line);
-             heightInPixels += Cell::height) {
-            auto length = line.length() * Cell::width;
+             heightInPixels += Cell::height()) {
+            auto length = line.length() * Cell::width();
             if (length > widthInPixels) widthInPixels = length;
 
             int x = 0;
             for (auto c = line.begin(); c != line.end();
-                 x += Cell::width, ++c) {
+                 x += Cell::width(), ++c) {
                 switch (*c) {
                 case '#': {
                     auto cell = new Cell(surface, x, heightInPixels, color);
@@ -44,8 +44,8 @@ Layout::Layout(std::string filename, SDL_Surface *surface)
 bool Layout::contains(const Cell cell) const
 {
     for (auto us : layout) {
-        if (us->xPosition() == cell.xPosition() &&
-            us->yPosition() == cell.yPosition()) {
+        if (us->xPositionInPixels() == cell.xPositionInPixels() &&
+            us->yPositionInPixels() == cell.yPositionInPixels()) {
             return true;
         }
     }
@@ -56,5 +56,12 @@ void Layout::draw() const
 {
     for (auto cell : layout) {
         cell->draw();
+    }
+}
+
+void Layout::updatePosition()
+{
+    for (auto cell : layout) {
+        cell->updatePosition();
     }
 }

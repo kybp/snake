@@ -7,29 +7,45 @@ using Direction::DOWN;
 using Direction::LEFT;
 using Direction::RIGHT;
 
+int Cell::h, Cell::w;
+
 Cell::Cell(SDL_Surface *surface, int x, int y, Uint32 color):
-    surface(surface), color(color)
+    x(x), y(y), surface(surface), color(color)
 {
     position.x = x;
     position.y = y;
-    position.w = width;
-    position.h = height;
+    position.w = width();
+    position.h = height();
+}
+
+int Cell::height()
+{
+    return h;
+}
+
+int Cell::width()
+{
+    return w;
 }
 
 void Cell::move(Direction direction)
 {
     switch (direction) {
     case UP:
-        position.y -= height;
+        --y;
+        position.y -= height();
         break;
     case DOWN:
-        position.y += height;
+        ++y;
+        position.y += height();
         break;
     case LEFT:
-        position.x -= width;
+        --x;
+        position.x -= width();
         break;
     case RIGHT:
-        position.x += width;
+        ++x;
+        position.x += width();
         break;
     }
 }
