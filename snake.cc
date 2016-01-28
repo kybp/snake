@@ -6,14 +6,19 @@ using Direction::DOWN;
 using Direction::LEFT;
 using Direction::RIGHT;
 
+Snake::Snake(SDL_Surface *surface, int x, int y, Direction direction):
+    direction(direction), needsToGrow(false), surface(surface)
+{
+    auto color = getColor();
+    body = std::vector<Cell>(1, Cell(surface, x, y, color));
+}
+
 Snake::Snake(SDL_Surface *surface, int x, int y, Direction direction,
              int screenWidth, int screenHeight,
-             decltype(body.size()) initialLength)
+             decltype(body.size()) initialLength):
+    direction(direction), needsToGrow(false), surface(surface)
 {
-    this->needsToGrow = false;
-    this->surface     = surface;
-    this->direction   = direction;
-    auto color = SDL_MapRGB(surface->format, 0, 127, 127);
+    auto color = getColor();
     if (initialLength == 0) {
         throw std::invalid_argument("Initial snake length cannot be zero");
     } else if (x > screenWidth || y > screenHeight) {

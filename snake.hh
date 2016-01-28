@@ -13,6 +13,7 @@ private:
     bool needsToGrow;
     SDL_Surface *surface;
 public:
+    Snake(SDL_Surface *surface, int x, int y, Direction direction);
     Snake(SDL_Surface *surface, int x, int y, Direction direction,
           int screenWidth, int screenHeight,
           decltype(body.size()) initialLength);
@@ -28,9 +29,15 @@ public:
     int xPosition();
     int yPosition();
 private:
+    Uint32 getColor();
     void growToInitialLength(decltype(body.size()) initialLength,
                              int screenWidth, int screenHeight);
 };
+
+inline Uint32 Snake::getColor()
+{
+    return SDL_MapRGB(surface->format, 0, 127, 127);
+}
 
 inline void Snake::grow()
 {
