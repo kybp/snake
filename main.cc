@@ -13,11 +13,11 @@ class SnakeGame {
 public:
     SnakeGame(SDL_Window *winodw, SDL_Surface *surface,
               int widthInCells, int heightInCells, int initialLength);
+    bool didQuit();
     void draw();
     void generateFood();
     void gameOver();
-    bool handleKey(const SDL_Keycode keycode);
-    void mainLoop();
+    void handleKey(const SDL_Keycode keycode);
     void run();
     void update();
 private:
@@ -26,8 +26,9 @@ private:
     const int heightInCells;
     const int widthInCells;
     const Uint32 maxDelay = 200;
+    bool alive  = true;
     bool paused = false;
-    bool running = true;
+    bool quit   = false;
     int score;
     Snake *snake;
     SDL_Surface *surface;
@@ -48,6 +49,11 @@ SnakeGame::SnakeGame(SDL_Window *window, SDL_Surface *surface,
     generateFood();
 }
 
+inline bool SnakeGame::didQuit()
+{
+    return quit;
+}
+
 inline void SnakeGame::draw()
 {
     SDL_FillRect(surface, nullptr, 0);
@@ -61,7 +67,7 @@ void SnakeGame::gameOver()
     // This is a placeholder. Eventually it will prompt the user to
     // press a button to start a new game.
     std::cout << "You died with " << score << " points" << std::endl;
-    running = false;
+    alive = false;
 }
 
 void SnakeGame::generateFood()
@@ -73,10 +79,8 @@ void SnakeGame::generateFood()
     } while (snake->collidesWith(*food) && (delete food, true));
 }
 
-bool SnakeGame::handleKey(const SDL_Keycode keycode)
+void SnakeGame::handleKey(const SDL_Keycode keycode)
 {
-    bool quit = false;
-
     if (!paused) {
         switch (keycode) {
         case SDLK_UP:
@@ -95,7 +99,7 @@ bool SnakeGame::handleKey(const SDL_Keycode keycode)
             paused = true;
             break;
         case SDLK_q:
-            running = false;
+            quit = true;
             break;
         case SDLK_ESCAPE:
             quit = true;
@@ -110,30 +114,27 @@ bool SnakeGame::handleKey(const SDL_Keycode keycode)
             paused = false;
             break;
         case SDLK_q:
-            running = false;
+            quit = true;
             break;
         case SDLK_ESCAPE:
             quit = true;
             break;
         }
     }
-
-    return quit;
 }
 
-void SnakeGame::mainLoop()
+void SnakeGame::run()
 {
-    bool quit = false;
     Uint32 lastFrame = SDL_GetTicks();
-    while (!quit && running) {
+    while (!quit && alive) {
         SDL_Event e;
         while (SDL_PollEvent(&e) != 0) {
             switch (e.type) {
             case SDL_QUIT:
-                running = false;
+                quit = true;
                 break;
             case SDL_KEYDOWN:
-                quit = handleKey(e.key.keysym.sym);
+                handleKey(e.key.keysym.sym);
                 break;
             }
         }
@@ -146,17 +147,12 @@ void SnakeGame::mainLoop()
     if (!quit) gameOver();
 }
 
-void SnakeGame::run()
-{
-    mainLoop();
-}
-
 inline void SnakeGame::update()
 {
     if (snake->move() || snake->xPosition() < 0 || snake->yPosition() < 0 ||
         snake->xPosition() / Cell::width >= widthInCells ||
         snake->yPosition() / Cell::height >= heightInCells) {
-        running = false;
+        alive = false;
     } else if (snake->collidesWith(*food)) {
         delete food;
         generateFood();
@@ -181,7 +177,11 @@ int main(void)
         w * Cell::width, h * Cell::height,
         SDL_WINDOW_SHOWN);
     SDL_Surface *surface = SDL_GetWindowSurface(window);
-    SnakeGame(window, surface, w, h, initialLength).run();
+    for (;;) {
+        auto game = SnakeGame(window, surface, w, h, initialLength);
+        game.run();
+        if (game.didQuit()) break;
+    }
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
