@@ -5,13 +5,16 @@
 #include <vector>
 #include <SDL.h>
 #include "cell.hh"
+#include "food.hh"
 #include "layout.hh"
 
-Layout::Layout(int heightInCells, int widthInCells):
-    heightInCells(heightInCells), widthInCells(widthInCells)
+Layout::Layout(SDL_Surface *surface, int heightInCells, int widthInCells)
+    : winnable(false), surface(surface),
+      heightInCells(heightInCells), widthInCells(widthInCells)
 {}
 
-Layout::Layout(std::string filename, SDL_Surface *surface)
+Layout::Layout(SDL_Surface *surface, std::string filename)
+    : winnable(false), surface(surface)
 {
     std::ifstream file(filename);
     auto color = SDL_MapRGB(surface->format, 127, 0, 0);
@@ -28,9 +31,14 @@ Layout::Layout(std::string filename, SDL_Surface *surface)
                     auto cell = new Cell(surface, x, heightInCells, color);
                     layout.push_back(cell);
                 } break;
-                case 'S': {
+                case 'U': case 'D': case 'L': case 'R': {
                     startingCellX = x;
                     startingCellY = heightInCells;
+                    startingDirection = directionFromChar(line[x]);
+                } break;
+                case 'F': {
+                    winnable = true;
+                    add_food_at(x, heightInCells);
                 } break;
                 case ' ': break; // ignore empty space
                 default:
@@ -38,25 +46,47 @@ Layout::Layout(std::string filename, SDL_Surface *surface)
                 }
             }
         }
+    } else {
+        std::cerr << "Can't open file: " << filename << std::endl;
+        exit(1);
     }
 }
 
-bool Layout::contains(const Cell cell) const
+bool Layout::contains(int x, int y) const
 {
-    for (auto us : layout) {
-        if (us->xPositionInPixels() == cell.xPositionInPixels() &&
-            us->yPositionInPixels() == cell.yPositionInPixels()) {
+    for (auto cell : layout) {
+        if (cell->xPositionInPixels() == x && cell->yPositionInPixels() == y) {
             return true;
         }
     }
     return false;
 }
 
+bool Layout::contains(const std::pair<int, int>& coordinates) const
+{
+    return contains(coordinates.first, coordinates.second);
+}
+
 void Layout::draw() const
 {
-    for (auto cell : layout) {
-        cell->draw();
+    for (auto cell : layout) cell->draw();
+    for (auto cell : food)   cell->draw();
+}
+
+bool Layout::eat_food_at(int pixelX, int pixelY)
+{
+    auto samePosition = [pixelX, pixelY](Food *cell) {
+        return (cell->xPositionInPixels() == pixelX &&
+                cell->yPositionInPixels() == pixelY);
+    };
+
+    decltype(food.begin()) it;
+    if ((it = std::find_if(food.begin(), food.end(), samePosition)) !=
+        food.end()) {
+        food.erase(it);
+        return true;
     }
+    return false;
 }
 
 void Layout::updatePosition()

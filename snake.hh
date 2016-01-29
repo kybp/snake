@@ -1,6 +1,7 @@
 #ifndef SNAKE_HH
 #define SNAKE_HH
 
+#include <utility>
 #include <vector>
 #include <SDL.h>
 #include "cell.hh"
@@ -18,7 +19,7 @@ public:
           int screenWidth, int screenHeight,
           decltype(body.size()) initialLength);
     void changeDirection(Direction direction);
-    bool collidesWith(const Cell& cell) const;
+    bool collidesWithCells(const std::pair<int, int>& coordinates) const;
     void draw() const;
     // grow() will cause the snake to grow by one cell after the next
     // call to move()
@@ -27,8 +28,10 @@ public:
     // caused the snake to run into itself
     const Cell& head() const;
     bool move();
-    int xPosition() const;
-    int yPosition() const;
+    int xPositionInCells() const;
+    int yPositionInCells() const;
+    int xPositionInPixels() const;
+    int yPositionInPixels() const;
 private:
     Uint32 getColor() const;
     void growToInitialLength(decltype(body.size()) initialLength,
@@ -50,12 +53,22 @@ inline const Cell& Snake::head() const
     return body.back();
 }
 
-inline int Snake::xPosition() const
+inline int Snake::xPositionInCells() const
+{
+    return xPositionInPixels() / Cell::width();
+}
+
+inline int Snake::yPositionInCells() const
+{
+    return yPositionInPixels() / Cell::height();
+}
+
+inline int Snake::xPositionInPixels() const
 {
     return body.back().xPositionInPixels();
 }
 
-inline int Snake::yPosition() const
+inline int Snake::yPositionInPixels() const
 {
     return body.back().yPositionInPixels();
 }

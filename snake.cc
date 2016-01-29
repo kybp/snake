@@ -36,11 +36,11 @@ void Snake::changeDirection(Direction direction)
     this->direction = direction;
 }
 
-bool Snake::collidesWith(const Cell& cell) const
+bool Snake::collidesWithCells(const std::pair<int, int>& coordinates) const
 {
-    for (Cell other : body) {
-        if (cell.xPositionInPixels() == other.xPositionInPixels() &&
-            cell.yPositionInPixels() == other.yPositionInPixels()) {
+    for (Cell cell : body) {
+        if (cell.xPositionInCells() == coordinates.first &&
+            cell.yPositionInCells() == coordinates.second) {
             return true;
         }
     }
@@ -57,7 +57,7 @@ void Snake::draw() const
 void Snake::growToInitialLength(decltype(body.size()) initialLength,
                                 int screenWidth, int screenHeight)
 {
-    int x = xPosition(), y = yPosition();
+    int x = xPositionInPixels(), y = yPositionInPixels();
     Direction primaryDirection = direction;
     Direction secondaryDirection;
     switch (direction) {
@@ -93,12 +93,13 @@ void Snake::growToInitialLength(decltype(body.size()) initialLength,
 
 bool Snake::move()
 {
-    Cell last = *body.begin();
+    Cell last = body.front();
     Cell next(body.back());
     next.move(direction);
-    if (collidesWith(next) && 
-        !(last.xPositionInPixels() == next.xPositionInPixels() &&
-          last.yPositionInPixels() == next.yPositionInPixels())) {
+    int x = next.xPositionInCells(), y = next.yPositionInCells();
+    std::pair<int, int> coordinates(x, y);
+    if (collidesWithCells(coordinates) && 
+        !(x == last.xPositionInCells() && y == last.yPositionInCells())) {
         return true;
     } else {
         body.push_back(next);

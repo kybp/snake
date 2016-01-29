@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <iostream>
+#include <utility>
 #include <SDL.h>
 #include "direction.hh"
 #include "food.hh"
@@ -15,7 +16,7 @@ class SnakeGame {
 public:
     SnakeGame(SDL_Window *winodw, int widthInCells, int heightInCells,
               int initialLength);
-    SnakeGame(SDL_Window *window, const Layout *layout);
+    SnakeGame(SDL_Window *window, Layout *layout);
     bool didLose();
     bool didQuit();
     void draw();
@@ -25,7 +26,6 @@ public:
     void run();
     void update();
 private:
-    Food *food;
     const int heightInCells;
     const int widthInCells;
     const Uint32 maxDelay = 200;
@@ -33,17 +33,17 @@ private:
     bool paused = false;
     bool quit   = false;
     int score;
-    const Layout *layout;
-    Snake *snake;
-    SDL_Window *window;
     SDL_Surface *surface;
+    SDL_Window *window;
+    Layout *layout;
+    Snake *snake;
 };
 
 SnakeGame::SnakeGame(SDL_Window *window, int widthInCells, int heightInCells,
                      int initialLength):
-    heightInCells(heightInCells), widthInCells(widthInCells),
-    score(0), layout(new Layout(heightInCells, widthInCells)), window(window),
-    surface(SDL_GetWindowSurface(window))
+    heightInCells(heightInCells), widthInCells(widthInCells), score(0),
+    surface(SDL_GetWindowSurface(window)), window(window),
+    layout(new Layout(surface, heightInCells, widthInCells))
 {
     int pixelHeight = heightInCells * Cell::height();
     int pixelWidth  = widthInCells  * Cell::width();
@@ -52,16 +52,16 @@ SnakeGame::SnakeGame(SDL_Window *window, int widthInCells, int heightInCells,
     generateFood();
 }
 
-SnakeGame::SnakeGame(SDL_Window *window, const Layout *layout):
+SnakeGame::SnakeGame(SDL_Window *window, Layout *layout):
     heightInCells(layout->getHeightInCells()),
     widthInCells(layout->getWidthInCells()),
-    score(0), layout(layout), window(window),
-    surface(SDL_GetWindowSurface(window))
+    score(0), surface(SDL_GetWindowSurface(window)),
+    window(window), layout(layout)
 {
     snake = new Snake(surface,
                       layout->getStartingXCell(),
                       layout->getStartingYCell(),
-                      LEFT);
+                      layout->getStartingDirection());
     generateFood();
 }
 
@@ -79,7 +79,6 @@ inline void SnakeGame::draw()
 {
     SDL_FillRect(surface, nullptr, 0);
     layout->draw();
-    food->draw();
     snake->draw();
     SDL_UpdateWindowSurface(window);
 }
@@ -92,13 +91,13 @@ void SnakeGame::gameOver()
 
 void SnakeGame::generateFood()
 {
+    std::pair<int, int> coordinates;
     do {
-        int x = rand() % widthInCells;
-        int y = rand() % heightInCells;
-        food = new Food(surface, x, y);
-    } while ((snake->collidesWith(*food) ||
-              layout->contains(*food)) &&
-             (delete food, true));
+        coordinates.first  = rand() % widthInCells;
+        coordinates.second = rand() % heightInCells;
+    } while (snake->collidesWithCells(coordinates) ||
+             layout->contains(coordinates));
+    layout->add_food_at(coordinates);
 }
 
 void SnakeGame::handleKey(const SDL_Keycode keycode)
@@ -163,14 +162,15 @@ void SnakeGame::run()
 inline void SnakeGame::update()
 {
     if (snake->move() ||
-        snake->xPosition() < 0 ||
-        snake->yPosition() < 0 ||
-        snake->xPosition() / Cell::width() >= widthInCells ||
-        snake->yPosition() / Cell::height() >= heightInCells ||
-        layout->contains(snake->head())) {
+        snake->xPositionInCells() < 0 ||
+        snake->yPositionInCells() < 0 ||
+        snake->xPositionInCells() >= widthInCells ||
+        snake->yPositionInCells() >= heightInCells ||
+        layout->contains(snake->xPositionInPixels(),
+                         snake->yPositionInPixels())) {
         alive = false;
-    } else if (snake->collidesWith(*food)) {
-        delete food;
+    } else if (layout->eat_food_at(snake->xPositionInPixels(),
+                                   snake->yPositionInPixels())) {
         generateFood();
         snake->grow();
         ++score;
@@ -209,7 +209,7 @@ int main(int argc, char **argv)
         SDL_Surface *surface = SDL_GetWindowSurface(window);
         while (--argc) {
             std::string filename = *++argv;
-            Layout layout(filename, surface);
+            Layout layout(surface, filename);
             Cell::setWidth(screenWidth   / layout.getWidthInCells());
             Cell::setHeight(screenHeight / layout.getHeightInCells());
             layout.updatePosition();
