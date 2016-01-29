@@ -60,8 +60,8 @@ SnakeGame::SnakeGame(SDL_Window *window, const Layout *layout):
     surface(SDL_GetWindowSurface(window))
 {
     snake = new Snake(surface,
-                      layout->getWidthInCells()  / 2,
-                      layout->getHeightInCells() / 2,
+                      layout->getStartingXCell(),
+                      layout->getStartingYCell(),
                       LEFT);
     foodColor = SDL_MapRGB(surface->format, 0, 127, 0);
     generateFood();

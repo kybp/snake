@@ -27,6 +27,10 @@ Layout::Layout(std::string filename, SDL_Surface *surface)
                     auto cell = new Cell(surface, x, heightInCells, color);
                     layout.push_back(cell);
                 } break;
+                case 'S': {
+                    startingCellX = x;
+                    startingCellY = heightInCells;
+                } break;
                 case ' ': break; // ignore empty space
                 default:
                     throw std::runtime_error("Invalid character in layout");
