@@ -91,7 +91,6 @@ bool Layout::eat_food_at(int pixelX, int pixelY)
 
 void Layout::updatePosition()
 {
-    for (auto cell : layout) {
-        cell->updatePosition();
-    }
+    for (auto cell : layout) cell->updatePosition();
+    for (auto cell : food)   cell->updatePosition();
 }

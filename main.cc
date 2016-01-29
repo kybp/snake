@@ -62,7 +62,6 @@ SnakeGame::SnakeGame(SDL_Window *window, Layout *layout):
                       layout->getStartingXCell(),
                       layout->getStartingYCell(),
                       layout->getStartingDirection());
-    generateFood();
 }
 
 inline bool SnakeGame::didLose()
@@ -171,7 +170,7 @@ inline void SnakeGame::update()
         alive = false;
     } else if (layout->eat_food_at(snake->xPositionInPixels(),
                                    snake->yPositionInPixels())) {
-        generateFood();
+        if (!layout->isWinnable()) generateFood();
         snake->grow();
         ++score;
     }

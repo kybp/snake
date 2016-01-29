@@ -27,6 +27,7 @@ public:
     int getStartingXCell() const;
     int getStartingYCell() const;
     Direction getStartingDirection() const;
+    bool isWinnable() const;
     void updatePosition();
 private:
     bool winnable;
@@ -83,6 +84,11 @@ inline int Layout::getStartingXCell() const
 inline int Layout::getStartingYCell() const
 {
     return startingCellY;
+}
+
+inline bool Layout::isWinnable() const
+{
+    return winnable;
 }
 
 #endif
