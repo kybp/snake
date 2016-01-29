@@ -92,7 +92,7 @@ void Snake::growToInitialLength(decltype(body.size()) initialLength,
 
 bool Snake::move()
 {
-    Cell first = *body.begin();
+    const Cell first = *body.cbegin();
     Cell next(body.back());
     next.move(direction);
     if (collidesWith(next) && 
