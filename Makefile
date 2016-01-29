@@ -5,8 +5,8 @@ snake: main.cc snake.o direction.o cell.o layout.o
 	g++ $(LDFLAGS) $(CPPFLAGS) $^ -o $@
 
 OBJS += snake.o
-snake.o: snake.cc snake.hh
-	g++ $(CPPFLAGS) -c snake.cc
+snake.o: snake.cc snake.hh direction.o
+	g++ $(CPPFLAGS) -c snake.cc direction.o
 
 OBJS += direction.o
 direction.o: direction.cc direction.hh

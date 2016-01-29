@@ -2,10 +2,10 @@
 #include "cell.hh"
 #include "direction.hh"
 
-using Direction::UP;
-using Direction::DOWN;
-using Direction::LEFT;
-using Direction::RIGHT;
+static const Direction UP    = Direction::UP;
+static const Direction DOWN  = Direction::DOWN;
+static const Direction LEFT  = Direction::LEFT;
+static const Direction RIGHT = Direction::RIGHT;
 
 int Cell::h, Cell::w;
 

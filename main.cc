@@ -5,10 +5,10 @@
 #include "layout.hh"
 #include "snake.hh"
 
-using Direction::UP;
-using Direction::DOWN;
-using Direction::LEFT;
-using Direction::RIGHT;
+static const Direction UP    = Direction::UP;
+static const Direction DOWN  = Direction::DOWN;
+static const Direction LEFT  = Direction::LEFT;
+static const Direction RIGHT = Direction::RIGHT;
 
 class SnakeGame {
 public:
@@ -183,7 +183,7 @@ int main(int argc, char **argv)
 {
     int initialLength = 4;
     int cellsWidth    = 20;
-    int cellsHeight   = 20;
+    int cellsHeight   = 15;
     Cell::setWidth(40);
     Cell::setHeight(40);
     int screenHeight = cellsHeight * Cell::height();
