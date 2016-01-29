@@ -2,6 +2,7 @@
 #include <iostream>
 #include <SDL.h>
 #include "direction.hh"
+#include "food.hh"
 #include "layout.hh"
 #include "snake.hh"
 
@@ -24,8 +25,7 @@ public:
     void run();
     void update();
 private:
-    Cell *food;
-    Uint32 foodColor;
+    Food *food;
     const int heightInCells;
     const int widthInCells;
     const Uint32 maxDelay = 200;
@@ -49,7 +49,6 @@ SnakeGame::SnakeGame(SDL_Window *window, int widthInCells, int heightInCells,
     int pixelWidth  = widthInCells  * Cell::width();
     snake = new Snake(surface, widthInCells / 2, heightInCells / 2, LEFT,
                       pixelWidth, pixelHeight, initialLength);
-    foodColor = SDL_MapRGB(surface->format, 0, 127, 0);
     generateFood();
 }
 
@@ -63,7 +62,6 @@ SnakeGame::SnakeGame(SDL_Window *window, const Layout *layout):
                       layout->getStartingXCell(),
                       layout->getStartingYCell(),
                       LEFT);
-    foodColor = SDL_MapRGB(surface->format, 0, 127, 0);
     generateFood();
 }
 
@@ -97,7 +95,7 @@ void SnakeGame::generateFood()
     do {
         int x = rand() % widthInCells;
         int y = rand() % heightInCells;
-        food = new Cell(surface, x, y, foodColor);
+        food = new Food(surface, x, y);
     } while ((snake->collidesWith(*food) ||
               layout->contains(*food)) &&
              (delete food, true));

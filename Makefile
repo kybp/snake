@@ -1,7 +1,7 @@
 CPPFLAGS = -std=c++11 -g -Wall -Wextra `pkg-config --cflags sdl2`
 LDFLAGS = `pkg-config --libs sdl2`
 
-snake: main.cc snake.o direction.o cell.o layout.o
+snake: main.cc snake.o direction.o cell.o layout.o food.hh
 	g++ $(LDFLAGS) $(CPPFLAGS) $^ -o $@
 
 OBJS += snake.o
