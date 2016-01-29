@@ -9,11 +9,11 @@ using Direction::RIGHT;
 
 int Cell::h, Cell::w;
 
-Cell::Cell(SDL_Surface *surface, int x, int y, Uint32 color):
-    x(x), y(y), surface(surface), color(color)
+Cell::Cell(SDL_Surface *surface, int cellX, int cellY, Uint32 color):
+    cellX(cellX), cellY(cellY), surface(surface), color(color)
 {
-    position.x = x;
-    position.y = y;
+    position.x = cellX * width();
+    position.y = cellY * height();
     position.w = width();
     position.h = height();
 }
@@ -32,19 +32,19 @@ void Cell::move(Direction direction)
 {
     switch (direction) {
     case UP:
-        --y;
+        --cellY;
         position.y -= height();
         break;
     case DOWN:
-        ++y;
+        ++cellY;
         position.y += height();
         break;
     case LEFT:
-        --x;
+        --cellX;
         position.x -= width();
         break;
     case RIGHT:
-        ++x;
+        ++cellX;
         position.x += width();
         break;
     }

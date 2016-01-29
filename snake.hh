@@ -13,8 +13,8 @@ private:
     bool needsToGrow;
     SDL_Surface *surface;
 public:
-    Snake(SDL_Surface *surface, int x, int y, Direction direction);
-    Snake(SDL_Surface *surface, int x, int y, Direction direction,
+    Snake(SDL_Surface *surface, int cellX, int cellY, Direction direction);
+    Snake(SDL_Surface *surface, int cellX, int cellY, Direction direction,
           int screenWidth, int screenHeight,
           decltype(body.size()) initialLength);
     void changeDirection(Direction direction);
@@ -47,7 +47,7 @@ inline void Snake::grow()
 
 inline const Cell& Snake::head() const
 {
-    return *body.begin();
+    return body.back();
 }
 
 inline int Snake::xPosition()

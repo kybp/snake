@@ -20,7 +20,7 @@ public:
     static void setWidth(int width);
 private:
     static int h, w;
-    int x, y;
+    int cellX, cellY;
     SDL_Rect position;
     SDL_Surface *surface;
     Uint32 color;
@@ -51,12 +51,12 @@ inline void Cell::updatePosition()
 
 inline int Cell::xPositionInCells() const
 {
-    return position.x / width();
+    return cellX;
 }
 
 inline int Cell::yPositionInCells() const
 {
-    return position.y / width();
+    return cellY;
 }
 
 inline int Cell::xPositionInPixels() const

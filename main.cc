@@ -40,27 +40,28 @@ private:
 };
 
 SnakeGame::SnakeGame(SDL_Window *window, int widthInCells, int heightInCells,
-                     int initialLength) :
+                     int initialLength):
     heightInCells(heightInCells), widthInCells(widthInCells),
     score(0), layout(new Layout(heightInCells, widthInCells)), window(window),
     surface(SDL_GetWindowSurface(window))
 {
     int pixelHeight = heightInCells * Cell::height();
     int pixelWidth  = widthInCells  * Cell::width();
-    snake = new Snake(surface, pixelWidth / 2, pixelHeight / 2, LEFT,
+    snake = new Snake(surface, widthInCells / 2, heightInCells / 2, LEFT,
                       pixelWidth, pixelHeight, initialLength);
     foodColor = SDL_MapRGB(surface->format, 0, 127, 0);
     generateFood();
 }
 
 SnakeGame::SnakeGame(SDL_Window *window, const Layout *layout):
-    heightInCells(layout->getHeightInPixels() / Cell::height()),
-    widthInCells(layout->getWidthInPixels() / Cell::width()),
+    heightInCells(layout->getHeightInCells()),
+    widthInCells(layout->getWidthInCells()),
     score(0), layout(layout), window(window),
     surface(SDL_GetWindowSurface(window))
 {
-    snake = new Snake(surface, (layout->getWidthInCells() / 2) * Cell::width(),
-                      (layout->getHeightInCells() / 2) * Cell::height(),
+    snake = new Snake(surface,
+                      layout->getWidthInCells()  / 2,
+                      layout->getHeightInCells() / 2,
                       LEFT);
     foodColor = SDL_MapRGB(surface->format, 0, 127, 0);
     generateFood();
@@ -94,8 +95,8 @@ void SnakeGame::gameOver()
 void SnakeGame::generateFood()
 {
     do {
-        int x = (rand() % widthInCells) * Cell::width();
-        int y = (rand() % heightInCells) * Cell::height();
+        int x = rand() % widthInCells;
+        int y = rand() % heightInCells;
         food = new Cell(surface, x, y, foodColor);
     } while ((snake->collidesWith(*food) ||
               layout->contains(*food)) &&
@@ -180,9 +181,13 @@ inline void SnakeGame::update()
 
 int main(int argc, char **argv)
 {
-    int w = 20, h = 20, initialLength = 4;
+    int initialLength = 4;
+    int cellsWidth    = 20;
+    int cellsHeight   = 20;
     Cell::setWidth(40);
     Cell::setHeight(40);
+    int screenHeight = cellsHeight * Cell::height();
+    int screenWidth  = cellsWidth  * Cell::width();
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cerr << "Could not initialize SDL." << std::endl;
@@ -193,11 +198,12 @@ int main(int argc, char **argv)
         "Snake",
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
-        w * Cell::width(), h * Cell::height(),
+        screenWidth, screenHeight,
         SDL_WINDOW_SHOWN);
     if (argc == 1) {
         for (;;) {
-            auto game = SnakeGame(window, w, h, initialLength);
+            auto game = SnakeGame(window, cellsWidth, cellsHeight,
+                                  initialLength);
             game.run();
             if (game.didQuit()) break;
         }
@@ -206,9 +212,9 @@ int main(int argc, char **argv)
         while (--argc) {
             std::string filename = *++argv;
             Layout layout(filename, surface);
-            // starting position should be given by the layout, also
-            // our algorithm for generating a snake of length n will
-            // need to be able to navigate a maze I guess.
+            Cell::setWidth(screenWidth   / layout.getWidthInCells());
+            Cell::setHeight(screenHeight / layout.getHeightInCells());
+            layout.updatePosition();
             bool lost, quit;
             do {
                 auto game = SnakeGame(window, &layout);

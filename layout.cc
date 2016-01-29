@@ -7,8 +7,7 @@
 #include "layout.hh"
 
 Layout::Layout(int heightInCells, int widthInCells):
-    heightInPixels(heightInCells * Cell::height()),
-    widthInPixels(widthInCells   * Cell::width())
+    heightInCells(heightInCells), widthInCells(widthInCells)
 {}
 
 Layout::Layout(std::string filename, SDL_Surface *surface)
@@ -18,21 +17,17 @@ Layout::Layout(std::string filename, SDL_Surface *surface)
 
     if (file) {
         std::string line;
-        for (heightInPixels = 0; getline(file, line);
-             heightInPixels += Cell::height()) {
-            auto length = line.length() * Cell::width();
-            if (length > widthInPixels) widthInPixels = length;
+        for (heightInCells = 0; getline(file, line); ++heightInCells) {
+            auto length = line.length();
+            if (length > widthInCells) widthInCells = length;
 
-            int x = 0;
-            for (auto c = line.begin(); c != line.end();
-                 x += Cell::width(), ++c) {
-                switch (*c) {
+            for (unsigned x = 0; x < line.length(); ++x) {
+                switch (line[x]) {
                 case '#': {
-                    auto cell = new Cell(surface, x, heightInPixels, color);
+                    auto cell = new Cell(surface, x, heightInCells, color);
                     layout.push_back(cell);
                 } break;
-                case ' ':       // ignore empty space
-                    break;
+                case ' ': break; // ignore empty space
                 default:
                     throw std::runtime_error("Invalid character in layout");
                 }

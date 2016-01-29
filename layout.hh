@@ -18,28 +18,28 @@ public:
     void updatePosition();
 private:
     std::vector<Cell *> layout;
-    unsigned heightInPixels;
-    unsigned widthInPixels;
+    unsigned heightInCells;
+    unsigned widthInCells;
 };
 
 inline unsigned Layout::getHeightInCells() const
 {
-    return getHeightInPixels() / Cell::height();
+    return heightInCells;
 }
 
 inline unsigned Layout::getWidthInCells() const
 {
-    return getWidthInPixels() / Cell::width();
+    return widthInCells;
 }
 
 inline unsigned Layout::getHeightInPixels() const
 {
-    return heightInPixels;
+    return getHeightInCells() * Cell::height();
 }
 
 inline unsigned Layout::getWidthInPixels() const
 {
-    return widthInPixels;
+    return getWidthInCells() * Cell::width();
 }
 
 #endif
