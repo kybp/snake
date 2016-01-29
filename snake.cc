@@ -92,12 +92,12 @@ void Snake::growToInitialLength(decltype(body.size()) initialLength,
 
 bool Snake::move()
 {
-    const Cell first = *body.cbegin();
+    Cell last = *body.begin();
     Cell next(body.back());
     next.move(direction);
     if (collidesWith(next) && 
-        !(first.xPositionInPixels() == next.xPositionInPixels() &&
-          first.yPositionInPixels() == next.yPositionInPixels())) {
+        !(last.xPositionInPixels() == next.xPositionInPixels() &&
+          last.yPositionInPixels() == next.yPositionInPixels())) {
         return true;
     } else {
         body.push_back(next);
