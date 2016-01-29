@@ -7,10 +7,14 @@ static const Direction RIGHT = Direction::RIGHT;
 
 Direction invert(Direction direction)
 {
+    Direction result;
+
     switch (direction) {
-    case UP:    return DOWN;
-    case DOWN:  return UP;
-    case LEFT:  return RIGHT;
-    case RIGHT: return LEFT;
+    case UP:    result = DOWN;
+    case DOWN:  result = UP;
+    case LEFT:  result = RIGHT;
+    case RIGHT: result = LEFT;
     }
+
+    return result;
 }
