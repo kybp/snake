@@ -35,7 +35,7 @@ void Snake::changeDirection(Direction direction)
     this->direction = direction;
 }
 
-bool Snake::collidesWith(const Cell& cell)
+bool Snake::collidesWith(const Cell& cell) const
 {
     for (Cell other : body) {
         if (cell.xPositionInPixels() == other.xPositionInPixels() &&
@@ -46,7 +46,7 @@ bool Snake::collidesWith(const Cell& cell)
     return false;
 }
 
-void Snake::draw()
+void Snake::draw() const
 {
     for (Cell cell : body) {
         cell.draw();

@@ -18,8 +18,8 @@ public:
           int screenWidth, int screenHeight,
           decltype(body.size()) initialLength);
     void changeDirection(Direction direction);
-    bool collidesWith(const Cell& cell);
-    void draw();
+    bool collidesWith(const Cell& cell) const;
+    void draw() const;
     // grow() will cause the snake to grow by one cell after the next
     // call to move()
     void grow();
@@ -27,15 +27,15 @@ public:
     // caused the snake to run into itself
     const Cell& head() const;
     bool move();
-    int xPosition();
-    int yPosition();
+    int xPosition() const;
+    int yPosition() const;
 private:
-    Uint32 getColor();
+    Uint32 getColor() const;
     void growToInitialLength(decltype(body.size()) initialLength,
                              int screenWidth, int screenHeight);
 };
 
-inline Uint32 Snake::getColor()
+inline Uint32 Snake::getColor() const
 {
     return SDL_MapRGB(surface->format, 0, 127, 127);
 }
@@ -50,12 +50,12 @@ inline const Cell& Snake::head() const
     return body.back();
 }
 
-inline int Snake::xPosition()
+inline int Snake::xPosition() const
 {
     return body.back().xPositionInPixels();
 }
 
-inline int Snake::yPosition()
+inline int Snake::yPosition() const
 {
     return body.back().yPositionInPixels();
 }
