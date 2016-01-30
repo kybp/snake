@@ -3,10 +3,10 @@
 
 #include <utility>
 #include <vector>
-#include <SDL.h>
 #include "cell.hh"
 #include "direction.hh"
 
+struct SDL_Surface;
 class Food;
 
 class Layout {
