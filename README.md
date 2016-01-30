@@ -23,3 +23,9 @@ of food cells can be indicated; once they are all eaten, play will
 progress to the next level. If no food cells are given on the map, it
 will loop infinitely like a regular game, just with the walls and/or
 starting position.
+
+Blank spaces mark blank spaces. The window size is constant, but when
+a map is loaded there will be as many rows as there are lines in the
+map file, and as many columns as the longest line has
+characters. Displayed cells will be scaled so that the map is as close
+as possible to fitting the window.
