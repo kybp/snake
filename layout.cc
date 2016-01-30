@@ -14,7 +14,7 @@ Layout::Layout(SDL_Surface *surface, int heightInCells, int widthInCells)
 {}
 
 Layout::Layout(SDL_Surface *surface, std::string filename)
-    : winnable(false), surface(surface)
+    : winnable(false), startingDirection(Direction::RIGHT), surface(surface)
 {
     std::ifstream file(filename);
     auto color = SDL_MapRGB(surface->format, 127, 0, 0);
