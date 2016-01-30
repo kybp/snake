@@ -16,22 +16,26 @@ class SnakeGame {
 public:
     SnakeGame(SDL_Window *winodw, int widthInCells, int heightInCells,
               int initialLength);
-    SnakeGame(SDL_Window *window, Layout *layout);
+    SnakeGame(SDL_Window *window, Layout *layout, bool generateStartingFood);
     bool didLose();
     bool didQuit();
+    void winGame();
+    void loseGame();
+    void quitGame();
     void draw();
     void generateFood();
-    void gameOver();
     void handleKey(const SDL_Keycode keycode);
+    bool isRunning();
     void run();
     void update();
 private:
     const int heightInCells;
     const int widthInCells;
     const Uint32 maxDelay = 200;
-    bool alive  = true;
-    bool paused = false;
-    bool quit   = false;
+    bool alive   = true;
+    bool paused  = false;
+    bool quit    = false;
+    bool running = true;
     int score;
     SDL_Surface *surface;
     SDL_Window *window;
@@ -52,16 +56,18 @@ SnakeGame::SnakeGame(SDL_Window *window, int widthInCells, int heightInCells,
     generateFood();
 }
 
-SnakeGame::SnakeGame(SDL_Window *window, Layout *layout):
-    heightInCells(layout->getHeightInCells()),
-    widthInCells(layout->getWidthInCells()),
-    score(0), surface(SDL_GetWindowSurface(window)),
-    window(window), layout(layout)
+SnakeGame::SnakeGame(SDL_Window *window, Layout *layout,
+    bool generateStartingFood)
+    : heightInCells(layout->getHeightInCells()),
+      widthInCells(layout->getWidthInCells()),
+      score(0), surface(SDL_GetWindowSurface(window)),
+      window(window), layout(layout)
 {
     snake = new Snake(surface,
                       layout->getStartingXCell(),
                       layout->getStartingYCell(),
                       layout->getStartingDirection());
+    if (!layout->isWinnable() && generateStartingFood) generateFood();
 }
 
 inline bool SnakeGame::didLose()
@@ -74,6 +80,11 @@ inline bool SnakeGame::didQuit()
     return quit;
 }
 
+inline bool SnakeGame::isRunning()
+{
+    return running;
+}
+
 inline void SnakeGame::draw()
 {
     SDL_FillRect(surface, nullptr, 0);
@@ -82,10 +93,21 @@ inline void SnakeGame::draw()
     SDL_UpdateWindowSurface(window);
 }
 
-void SnakeGame::gameOver()
+void SnakeGame::winGame()
+{
+    running = false;
+}
+
+void SnakeGame::loseGame()
 {
     std::cout << "You died with " << score << " points" << std::endl;
     alive = false;
+}
+
+void SnakeGame::quitGame()
+{
+    quit = true;
+    running = false;
 }
 
 void SnakeGame::generateFood()
@@ -95,7 +117,7 @@ void SnakeGame::generateFood()
         coordinates.first  = rand() % widthInCells;
         coordinates.second = rand() % heightInCells;
     } while (snake->collidesWithCells(coordinates) ||
-             layout->contains(coordinates));
+             layout->containsCellCoordinates(coordinates));
     layout->add_food_at(coordinates);
 }
 
@@ -119,7 +141,7 @@ void SnakeGame::handleKey(const SDL_Keycode keycode)
             paused = true;
             break;
         case SDLK_q: case SDLK_ESCAPE:
-            quit = true;
+            quitGame();
             break;
         }
     } else {
@@ -128,7 +150,7 @@ void SnakeGame::handleKey(const SDL_Keycode keycode)
             paused = false;
             break;
         case SDLK_q: case SDLK_ESCAPE:
-            quit = true;
+            quitGame();
             break;
         }
     }
@@ -137,7 +159,7 @@ void SnakeGame::handleKey(const SDL_Keycode keycode)
 void SnakeGame::run()
 {
     Uint32 lastFrame = SDL_GetTicks();
-    while (!quit && alive) {
+    while (running && alive) {
         SDL_Event e;
         while (SDL_PollEvent(&e) != 0) {
             switch (e.type) {
@@ -155,7 +177,6 @@ void SnakeGame::run()
             lastFrame = SDL_GetTicks();
         }
     }
-    if (!quit) gameOver();
 }
 
 inline void SnakeGame::update()
@@ -165,11 +186,12 @@ inline void SnakeGame::update()
         snake->yPositionInCells() < 0 ||
         snake->xPositionInCells() >= widthInCells ||
         snake->yPositionInCells() >= heightInCells ||
-        layout->contains(snake->xPositionInPixels(),
-                         snake->yPositionInPixels())) {
-        alive = false;
+        layout->containsCellCoordinates(snake->xPositionInCells(),
+                                        snake->yPositionInCells())) {
+        loseGame();
     } else if (layout->eat_food_at(snake->xPositionInPixels(),
                                    snake->yPositionInPixels())) {
+        if (layout->isWinnable() && layout->noFoodLeft()) winGame();
         if (!layout->isWinnable()) generateFood();
         snake->grow();
         ++score;
@@ -212,13 +234,14 @@ int main(int argc, char **argv)
             Cell::setWidth(screenWidth   / layout.getWidthInCells());
             Cell::setHeight(screenHeight / layout.getHeightInCells());
             layout.updatePosition();
-            bool lost, quit;
+            bool lost = false, running, quit;
             do {
-                auto game = SnakeGame(window, &layout);
+                auto game = SnakeGame(window, &layout, !lost);
                 game.run();
-                lost = game.didLose();
-                quit = game.didQuit();
-            } while (lost && !quit);
+                lost    = game.didLose();
+                running = game.isRunning();
+                quit    = game.didQuit();
+            } while (running && lost);
             if (quit) break;
         }
     }

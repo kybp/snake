@@ -15,8 +15,8 @@ public:
     Layout(SDL_Surface *surface, std::string filename);
     void add_food_at(int x, int y);
     void add_food_at(const std::pair<int, int>& coordinates);
-    bool contains(int x, int y) const;
-    bool contains(const std::pair<int, int>& coordinates) const;
+    bool containsCellCoordinates(int x, int y) const;
+    bool containsCellCoordinates(const std::pair<int, int>& coordinates) const;
     void draw() const;
     // Return value indicates whether there was food at that position
     bool eat_food_at(int pixelX, int pixelY);
@@ -28,6 +28,7 @@ public:
     int getStartingYCell() const;
     Direction getStartingDirection() const;
     bool isWinnable() const;
+    bool noFoodLeft() const;
     void updatePosition();
 private:
     bool winnable;
@@ -84,6 +85,11 @@ inline int Layout::getStartingXCell() const
 inline int Layout::getStartingYCell() const
 {
     return startingCellY;
+}
+
+inline bool Layout::noFoodLeft() const
+{
+    return food.empty();
 }
 
 inline bool Layout::isWinnable() const

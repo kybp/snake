@@ -52,19 +52,20 @@ Layout::Layout(SDL_Surface *surface, std::string filename)
     }
 }
 
-bool Layout::contains(int x, int y) const
+bool Layout::containsCellCoordinates(int x, int y) const
 {
     for (auto cell : layout) {
-        if (cell->xPositionInPixels() == x && cell->yPositionInPixels() == y) {
+        if (cell->xPositionInCells() == x && cell->yPositionInCells() == y) {
             return true;
         }
     }
     return false;
 }
 
-bool Layout::contains(const std::pair<int, int>& coordinates) const
+bool Layout::containsCellCoordinates(const std::pair<int, int>& coordinates)
+    const
 {
-    return contains(coordinates.first, coordinates.second);
+    return containsCellCoordinates(coordinates.first, coordinates.second);
 }
 
 void Layout::draw() const
