@@ -1,6 +1,7 @@
 #ifndef SNAKE_HH
 #define SNAKE_HH
 
+#include <memory>
 #include <utility>
 #include <vector>
 #include <SDL.h>
@@ -9,34 +10,57 @@
 
 class Snake {
 private:
-    std::vector<Cell> body;
+    std::vector<std::unique_ptr<Cell>> body;
+public:
+    Snake(SDL_Surface *surface, unsigned x, unsigned y, Direction direction);
+    Snake(SDL_Surface *surface, unsigned x, unsigned y, Direction direction,
+          unsigned screenWidth, unsigned screenHeight, unsigned yOffset,
+          decltype(body.size()) initialLength);
+    // Set the snake's next movement to be in the specified direction
+    void changeDirection(Direction direction);
+    bool collidesWith(const Cell& cell) const;
+    bool collidesWith(const std::pair<unsigned, unsigned>& coords) const;
+    void draw() const;
+    // Cause the snake to grow by one cell after the next call to
+    // move()
+    void grow();
+    void move();
+    const Cell& head() const;
+    void growToInitialLength(decltype(body.size()) initialLength,
+                             unsigned screenWidth, unsigned screenHeight,
+                             unsigned yOffset);
+    bool willRunIntoSelf() const;
+private:
     Direction direction;
     bool needsToGrow;
     SDL_Surface *surface;
-public:
-    Snake(SDL_Surface *surface, int cellX, int cellY, Direction direction);
-    Snake(SDL_Surface *surface, int cellX, int cellY, Direction direction,
-          int screenWidth, int screenHeight,
-          decltype(body.size()) initialLength);
-    void changeDirection(Direction direction);
-    bool collidesWithCells(const std::pair<int, int>& coordinates) const;
-    void draw() const;
-    // grow() will cause the snake to grow by one cell after the next
-    // call to move()
-    void grow();
-    // move() returns true or false to indicate whether that move
-    // caused the snake to run into itself
-    const Cell& head() const;
-    bool move();
-    int xPositionInCells() const;
-    int yPositionInCells() const;
-    int xPositionInPixels() const;
-    int yPositionInPixels() const;
-private:
     Uint32 getColor() const;
-    void growToInitialLength(decltype(body.size()) initialLength,
-                             int screenWidth, int screenHeight);
 };
+
+inline void Snake::changeDirection(Direction direction)
+{
+    this->direction = direction;
+}
+
+inline bool Snake::collidesWith(const Cell& cell) const
+{
+    auto equal = [&cell](const std::unique_ptr<Cell>& ptr)
+        { return cell == *ptr; };
+    return std::find_if(body.begin(), body.end(), equal) == body.end();
+}
+
+inline bool Snake::collidesWith(const std::pair<unsigned, unsigned>& pos) const
+{
+    auto equal = [&pos](const std::unique_ptr<Cell>& ptr)
+        { return *ptr == pos; };
+    return std::find_if(body.begin(), body.end(), equal) == body.end();
+}
+
+inline void Snake::draw() const
+{
+    auto fn = [](const std::unique_ptr<Cell>& cell) { cell->draw(); };
+    std::for_each(body.begin(), body.end(), fn);
+}
 
 inline Uint32 Snake::getColor() const
 {
@@ -50,27 +74,21 @@ inline void Snake::grow()
 
 inline const Cell& Snake::head() const
 {
-    return body.back();
+    return *body.back();
 }
 
-inline int Snake::xPositionInCells() const
+inline void Snake::move()
 {
-    return xPositionInPixels() / Cell::width();
+    auto next = head().nextPosition(direction);
+    unsigned x = next.first, y = next.second;
+    body.push_back(std::unique_ptr<Cell>{new Cell(surface, x, y, getColor())});
+    if (needsToGrow) needsToGrow = false;
+    else body.erase(body.begin());
 }
 
-inline int Snake::yPositionInCells() const
+inline bool Snake::willRunIntoSelf() const
 {
-    return yPositionInPixels() / Cell::height();
-}
-
-inline int Snake::xPositionInPixels() const
-{
-    return body.back().xPositionInPixels();
-}
-
-inline int Snake::yPositionInPixels() const
-{
-    return body.back().yPositionInPixels();
+    return **body.begin() == head().nextPosition(direction);
 }
 
 #endif

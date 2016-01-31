@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <memory>
 #include <stdexcept>
 #include "snake.hh"
 #include "cell.hh"
@@ -7,57 +9,36 @@ static const Direction DOWN  = Direction::DOWN;
 static const Direction LEFT  = Direction::LEFT;
 static const Direction RIGHT = Direction::RIGHT;
 
-Snake::Snake(SDL_Surface *surface, int cellX, int cellY, Direction direction):
+Snake::Snake(SDL_Surface *surface, unsigned x, unsigned y, Direction direction):
     direction(direction), needsToGrow(false), surface(surface)
 {
     auto color = getColor();
-    body = std::vector<Cell>(1, Cell(surface, cellX, cellY, color));
+    body.push_back(std::unique_ptr<Cell>{new Cell(surface, x, y, color)});
 }
 
-Snake::Snake(SDL_Surface *surface, int cellX, int cellY,
-             Direction direction, int screenWidth, int screenHeight,
+Snake::Snake(SDL_Surface *surface, unsigned x, unsigned y, Direction direction,
+             unsigned screenWidth, unsigned screenHeight, unsigned yOffset,
              decltype(body.size()) initialLength):
     direction(direction), needsToGrow(false), surface(surface)
 {
     auto color = getColor();
     if (initialLength == 0) {
         throw std::invalid_argument("Initial snake length cannot be zero");
-    } else if (cellX * Cell::width()  > screenWidth ||
-               cellY * Cell::height() > screenHeight) {
+    } else if (x * Cell::width()  > screenWidth ||
+               y * Cell::height() > screenHeight) {
         throw std::invalid_argument("Initial snake coordinates not on screen");
     } else {
-        body = std::vector<Cell>(1, Cell(surface, cellX, cellY, color));
-        growToInitialLength(initialLength, screenWidth, screenHeight);
-    }
-}
-
-void Snake::changeDirection(Direction direction)
-{
-    this->direction = direction;
-}
-
-bool Snake::collidesWithCells(const std::pair<int, int>& coordinates) const
-{
-    for (Cell cell : body) {
-        if (cell.xPositionInCells() == coordinates.first &&
-            cell.yPositionInCells() == coordinates.second) {
-            return true;
-        }
-    }
-    return false;
-}
-
-void Snake::draw() const
-{
-    for (Cell cell : body) {
-        cell.draw();
+        body.push_back(std::unique_ptr<Cell>{new Cell(surface, x, y, color)});
+        growToInitialLength(initialLength, screenWidth, screenHeight, yOffset);
     }
 }
 
 void Snake::growToInitialLength(decltype(body.size()) initialLength,
-                                int screenWidth, int screenHeight)
+                                unsigned screenWidth, unsigned screenHeight,
+                                unsigned yOffset)
 {
-    int x = xPositionInPixels(), y = yPositionInPixels();
+    unsigned x = head().xPosition() * Cell::width();
+    unsigned y = head().yPosition() * Cell::height() + yOffset;
     Direction primaryDirection = direction;
     Direction secondaryDirection;
     switch (direction) {
@@ -69,12 +50,13 @@ void Snake::growToInitialLength(decltype(body.size()) initialLength,
         break;
     }
     while (--initialLength) {
-        Cell next(body.back());
-        next.move(direction);
-        x = next.xPositionInPixels(), y = next.yPositionInPixels();
+        auto next = head().nextPosition(direction);
+        unsigned x = next.first, y = next.second;
         // Give a two cell border to prevent immediate deaths
-        if (x < Cell::width()  * 2 || x >= screenWidth  - Cell::width()  * 2 ||
-            y < Cell::height() * 2 || y >= screenHeight - Cell::height() * 2) {
+        if (x < Cell::width()  * 2           ||
+            y < Cell::height() * 2 + yOffset ||
+            x >= screenWidth  - Cell::width()  * 2 ||
+            y >= screenHeight - Cell::height() * 2) {
             if (direction == secondaryDirection) {
                 throw std::runtime_error("Initial snake length too large");
             } else {
@@ -88,26 +70,5 @@ void Snake::growToInitialLength(decltype(body.size()) initialLength,
                 direction = primaryDirection;
             }
         }
-    }
-}
-
-bool Snake::move()
-{
-    Cell last = body.front();
-    Cell next(body.back());
-    next.move(direction);
-    int x = next.xPositionInCells(), y = next.yPositionInCells();
-    std::pair<int, int> coordinates(x, y);
-    if (collidesWithCells(coordinates) && 
-        !(x == last.xPositionInCells() && y == last.yPositionInCells())) {
-        return true;
-    } else {
-        body.push_back(next);
-        if (needsToGrow) {
-            needsToGrow = false;
-        } else {
-            body.erase(body.begin());
-        }
-        return false;
     }
 }
