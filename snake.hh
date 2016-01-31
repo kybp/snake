@@ -1,6 +1,7 @@
 #ifndef SNAKE_HH
 #define SNAKE_HH
 
+#include <algorithm>
 #include <memory>
 #include <utility>
 #include <vector>

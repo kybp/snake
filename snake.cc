@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <memory>
 #include <stdexcept>
 #include "snake.hh"
