@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <iostream>
+#include <memory>
 #include <utility>
 #include <SDL.h>
 #include "direction.hh"
@@ -16,7 +17,8 @@ class SnakeGame {
 public:
     SnakeGame(SDL_Window *winodw, int widthInCells, int heightInCells,
               int initialLength);
-    SnakeGame(SDL_Window *window, Layout *layout, bool generateStartingFood);
+    SnakeGame(SDL_Window *window, std::shared_ptr<Layout> layout,
+              bool generateStartingFood);
     bool didLose();
     bool didQuit();
     void winGame();
@@ -39,34 +41,35 @@ private:
     int score;
     SDL_Surface *surface;
     SDL_Window *window;
-    Layout *layout;
-    Snake *snake;
+    std::shared_ptr<Layout> layout;
+    std::shared_ptr<Snake> snake;
 };
 
 SnakeGame::SnakeGame(SDL_Window *window, int widthInCells, int heightInCells,
                      int initialLength):
     heightInCells(heightInCells), widthInCells(widthInCells), score(0),
     surface(SDL_GetWindowSurface(window)), window(window),
-    layout(new Layout(surface, heightInCells, widthInCells))
+    layout(std::make_shared<Layout>(surface, heightInCells, widthInCells))
 {
     int pixelHeight = heightInCells * Cell::height();
     int pixelWidth  = widthInCells  * Cell::width();
-    snake = new Snake(surface, widthInCells / 2, heightInCells / 2, LEFT,
-                      pixelWidth, pixelHeight, initialLength);
+    snake = std::make_shared<Snake>(surface, widthInCells / 2,
+                                    heightInCells / 2, LEFT, pixelWidth,
+                                    pixelHeight, initialLength);
     generateFood();
 }
 
-SnakeGame::SnakeGame(SDL_Window *window, Layout *layout,
+SnakeGame::SnakeGame(SDL_Window *window, std::shared_ptr<Layout> layout,
     bool generateStartingFood)
     : heightInCells(layout->getHeightInCells()),
       widthInCells(layout->getWidthInCells()),
       score(0), surface(SDL_GetWindowSurface(window)),
       window(window), layout(layout)
 {
-    snake = new Snake(surface,
-                      layout->getStartingXCell(),
-                      layout->getStartingYCell(),
-                      layout->getStartingDirection());
+    snake = std::make_shared<Snake>(surface,
+                                    layout->getStartingXCell(),
+                                    layout->getStartingYCell(),
+                                    layout->getStartingDirection());
     if (!layout->isWinnable() && generateStartingFood) generateFood();
 }
 
@@ -230,13 +233,13 @@ int main(int argc, char **argv)
         SDL_Surface *surface = SDL_GetWindowSurface(window);
         while (--argc) {
             std::string filename = *++argv;
-            Layout layout(surface, filename);
-            Cell::setWidth(screenWidth   / layout.getWidthInCells());
-            Cell::setHeight(screenHeight / layout.getHeightInCells());
-            layout.updatePosition();
+            auto layout = std::make_shared<Layout>(surface, filename);
+            Cell::setWidth(screenWidth   / layout->getWidthInCells());
+            Cell::setHeight(screenHeight / layout->getHeightInCells());
+            layout->updatePosition();
             bool lost = false, running, quit;
             do {
-                auto game = SnakeGame(window, &layout, !lost);
+                auto game = SnakeGame(window, layout, !lost);
                 game.run();
                 lost    = game.didLose();
                 running = game.isRunning();
