@@ -1,6 +1,7 @@
 #ifndef LAYOUT_HH
 #define LAYOUT_HH
 
+#include <memory>
 #include <utility>
 #include <vector>
 #include "cell.hh"
@@ -32,8 +33,8 @@ public:
     void updatePosition();
 private:
     bool winnable;
-    std::vector<Food *> food;
-    std::vector<Cell *> layout;
+    std::vector<std::shared_ptr<Food>> food;
+    std::vector<std::shared_ptr<Cell>> layout;
     int startingCellX;
     int startingCellY;
     Direction startingDirection;
@@ -44,7 +45,7 @@ private:
 
 inline void Layout::add_food_at(int x, int y)
 {
-    food.push_back(new Food(surface, x, y));
+    food.push_back(std::make_shared<Food>(surface, x, y));
 }
 
 inline void Layout::add_food_at(const std::pair<int, int>& coordinates)

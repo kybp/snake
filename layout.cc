@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -28,7 +29,8 @@ Layout::Layout(SDL_Surface *surface, std::string filename)
             for (unsigned x = 0; x < line.length(); ++x) {
                 switch (line[x]) {
                 case '#': {
-                    auto cell = new Cell(surface, x, heightInCells, color);
+                    auto cell = std::make_shared<Cell>(
+                        surface, x, heightInCells, color);
                     layout.push_back(cell);
                 } break;
                 case 'U': case 'D': case 'L': case 'R': {
@@ -76,7 +78,7 @@ void Layout::draw() const
 
 bool Layout::eat_food_at(int pixelX, int pixelY)
 {
-    auto samePosition = [pixelX, pixelY](Food *cell) {
+    auto samePosition = [pixelX, pixelY](std::shared_ptr<Food> cell) {
         return (cell->xPositionInPixels() == pixelX &&
                 cell->yPositionInPixels() == pixelY);
     };
