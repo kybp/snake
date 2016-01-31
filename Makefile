@@ -15,9 +15,9 @@ OBJS += cell.o
 cell.o: cell.cc cell.hh
 	g++ $(CPPFLAGS) -c cell.cc
 
-OBJS += layout.o
-layout.o: layout.cc layout.hh
-	g++ $(CPPFLAGS) -c layout.cc
+OBJS += level.o
+level.o: level.cc level.hh
+	g++ $(CPPFLAGS) -c level.cc
 
 snake: main.cc food.hh $(OBJS)
 	g++ $(LDFLAGS) $(CPPFLAGS) main.cc $(OBJS) -o $@

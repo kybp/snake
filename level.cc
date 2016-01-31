@@ -7,14 +7,16 @@
 #include <SDL.h>
 #include "cell.hh"
 #include "food.hh"
-#include "layout.hh"
+#include "level.hh"
 
-Layout::Layout(SDL_Surface *surface, int heightInCells, int widthInCells)
+Layout::Layout(SDL_Surface *surface, int offsetInCells,
+               int heightInCells, int widthInCells)
     : winnable(false), surface(surface),
-      heightInCells(heightInCells), widthInCells(widthInCells)
+      heightInCells(heightInCells + offsetInCells), widthInCells(widthInCells)
 {}
 
-Layout::Layout(SDL_Surface *surface, std::string filename)
+Layout::Layout(SDL_Surface *surface, std::string filename,
+               int offsetInCells)
     : winnable(false), startingDirection(Direction::RIGHT),
       surface(surface), widthInCells(0)
 {
@@ -23,7 +25,8 @@ Layout::Layout(SDL_Surface *surface, std::string filename)
 
     if (file) {
         std::string line;
-        for (heightInCells = 0; getline(file, line); ++heightInCells) {
+        for (heightInCells = offsetInCells; getline(file, line);
+             ++heightInCells) {
             auto length = line.length();
             if (length > widthInCells) widthInCells = length;
 
