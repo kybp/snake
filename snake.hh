@@ -89,7 +89,7 @@ inline void Snake::move()
 
 inline bool Snake::willRunIntoSelf() const
 {
-    return **body.begin() == head().nextPosition(direction);
+    return *body.front() == head().nextPosition(direction);
 }
 
 #endif
