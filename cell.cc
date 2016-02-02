@@ -8,7 +8,7 @@ static const Direction DOWN  = Direction::DOWN;
 static const Direction LEFT  = Direction::LEFT;
 static const Direction RIGHT = Direction::RIGHT;
 
-unsigned Cell::h, Cell::w;
+unsigned Cell::h, Cell::w, Cell::yOffset;
 
 Cell::Cell(SDL_Surface *surface, unsigned x, unsigned y, Uint32 color)
     : x(x), y(y), position(new SDL_Rect), surface(surface), color(color)
