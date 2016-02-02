@@ -95,7 +95,10 @@ inline std::pair<int, int> Snake::nextPosition() const
 
 inline bool Snake::willRunIntoSelf() const
 {
-    return *body.front() == nextPosition();
+    auto next = nextPosition();
+    auto equal = [&next](const std::unique_ptr<Cell>& cell)
+        { return *cell == next; };
+    return std::find_if(++body.begin(), body.end(), equal) != body.end();
 }
 
 #endif
