@@ -16,6 +16,7 @@ Level::Level(SDL_Surface *surface, unsigned width, unsigned height,
 
 void Level::draw()
 {
+    SDL_FillRect(surface, nullptr, 0);
     snake->draw();
     for (const auto& cell : food)  cell->draw();
     for (const auto& cell : walls) cell->draw();
