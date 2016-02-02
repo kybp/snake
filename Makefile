@@ -19,7 +19,7 @@ OBJS += level.o
 level.o: level.cc level.hh
 	g++ $(CPPFLAGS) -c level.cc
 
-snake: main.cc food.hh $(OBJS)
+snake: main.cc $(OBJS)
 	g++ $(LDFLAGS) $(CPPFLAGS) main.cc $(OBJS) -o $@
 
 clean:

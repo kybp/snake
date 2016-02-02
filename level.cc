@@ -3,7 +3,6 @@
 #include <vector>
 #include <SDL.h>
 #include "cell.hh"
-#include "food.hh"
 #include "level.hh"
 
 Level::Level(SDL_Surface *surface, unsigned height, unsigned width, int *score)
