@@ -28,7 +28,7 @@ public:
 class Level {
 public:
     Level(SDL_Surface *surface, unsigned width, unsigned height,
-          unsigned *score);
+          unsigned yOffset, unsigned *score);
     void draw();
     bool snakeAlive() const;
     Snake &getSnake() const;

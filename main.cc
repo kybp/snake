@@ -23,7 +23,7 @@ SnakeGame::SnakeGame(SDL_Window *window, unsigned width, unsigned height)
       window(window), surface(SDL_GetWindowSurface(window))
 {
     level = std::unique_ptr<Level>(
-        new Level(surface, width, height, &score));
+        new Level(surface, width, height, 40, &score));
 };
 
 inline void SnakeGame::gameOver()

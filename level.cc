@@ -5,12 +5,21 @@
 #include "cell.hh"
 #include "level.hh"
 
+namespace {
+    const unsigned defaultInitialLength = 4;
+}
+
 Level::Level(SDL_Surface *surface, unsigned width, unsigned height,
-             unsigned *score)
-    : score(score), surface(surface), alive(true), winnable(false), won(false),
+             unsigned yOffset, unsigned *score)
+    : score(score), surface(surface),
+      alive(true), winnable(false), won(false),
       width(width), height(height),
       snake(std::unique_ptr<Snake>
-            { new Snake(surface, height / 2, width / 2, Direction::LEFT) })
+            { new Snake(surface, height / 2, width / 2, Direction::LEFT,
+                        width * Cell::width(),
+                        height * Cell::height() + yOffset,
+                        yOffset,
+                        defaultInitialLength)})
 {
     generateRandomFood();
 }

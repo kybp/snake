@@ -50,9 +50,11 @@ void Snake::growToInitialLength(decltype(body.size()) initialLength,
         secondaryDirection = (screenHeight - y) > y ? DOWN : UP;
         break;
     }
+
     while (--initialLength) {
         auto next = nextPosition();
-        unsigned x = next.first, y = next.second;
+        unsigned x = next.first  * Cell::width();
+        unsigned y = next.second * Cell::height();
         // Give a two cell border to prevent immediate deaths
         if (x < Cell::width()  * 2           ||
             y < Cell::height() * 2 + yOffset ||
