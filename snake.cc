@@ -18,7 +18,7 @@ Snake::Snake(SDL_Surface *surface, unsigned x, unsigned y, Direction direction):
 }
 
 Snake::Snake(SDL_Surface *surface, unsigned x, unsigned y, Direction direction,
-             unsigned screenWidth, unsigned screenHeight, unsigned yOffset,
+             unsigned screenWidth, unsigned screenHeight,
              decltype(body.size()) initialLength):
     direction(direction), needsToGrow(false), surface(surface)
 {
@@ -30,16 +30,15 @@ Snake::Snake(SDL_Surface *surface, unsigned x, unsigned y, Direction direction,
         throw std::invalid_argument("Initial snake coordinates not on screen");
     } else {
         body.push_back(std::unique_ptr<Cell>{new Cell(surface, x, y, color)});
-        growToInitialLength(initialLength, screenWidth, screenHeight, yOffset);
+        growToInitialLength(initialLength, screenWidth, screenHeight);
     }
 }
 
 void Snake::growToInitialLength(decltype(body.size()) initialLength,
-                                unsigned screenWidth, unsigned screenHeight,
-                                unsigned yOffset)
+                                unsigned screenWidth, unsigned screenHeight)
 {
     unsigned x = head().xPosition() * Cell::width();
-    unsigned y = head().yPosition() * Cell::height() + yOffset;
+    unsigned y = head().yPosition() * Cell::height() + Cell::getYOffset();
     Direction primaryDirection = direction;
     Direction secondaryDirection;
     switch (direction) {
@@ -56,8 +55,8 @@ void Snake::growToInitialLength(decltype(body.size()) initialLength,
         unsigned x = next.first  * Cell::width();
         unsigned y = next.second * Cell::height();
         // Give a two cell border to prevent immediate deaths
-        if (x < Cell::width()  * 2           ||
-            y < Cell::height() * 2 + yOffset ||
+        if (x < Cell::width()  * 2 ||
+            y < Cell::height() * 2 + Cell::getYOffset() ||
             x >= screenWidth  - Cell::width()  * 2 ||
             y >= screenHeight - Cell::height() * 2) {
             if (direction == secondaryDirection) {

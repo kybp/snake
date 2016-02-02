@@ -6,25 +6,37 @@
 class SnakeGame {
 public:
     SnakeGame(SDL_Window *window, unsigned width, unsigned height);
+    SnakeGame(SDL_Window *window, unsigned width, unsigned height,
+              const char *filename);
     void run();
 private:
     static const Uint32 maxDelay = 200;
     void gameOver();
     void handleKey(SDL_Keycode keycode);
     bool paused, running;
-    unsigned width, height, score;
+    unsigned score;
     SDL_Window *window;
     SDL_Surface *surface;
     std::unique_ptr<Level> level;
 };
 
 SnakeGame::SnakeGame(SDL_Window *window, unsigned width, unsigned height)
-    : paused(false), running(true), width(width), height(height), score(0),
+    : paused(false), running(true), score(0),
       window(window), surface(SDL_GetWindowSurface(window))
 {
     level = std::unique_ptr<Level>(
-        new Level(surface, width, height, 40, &score));
-};
+        new Level(surface, width, height, &score));
+}
+
+SnakeGame::SnakeGame(SDL_Window *window, unsigned width, unsigned height,
+                     const char *filename)
+    : paused(false), running(true), score(0),
+      window(window), surface(SDL_GetWindowSurface(window))
+{
+    level = std::unique_ptr<Level>(
+        new Level(surface, width * Cell::width(), height * Cell::height(),
+                  filename, &score));
+}
 
 inline void SnakeGame::gameOver()
 {
@@ -91,7 +103,7 @@ void SnakeGame::run()
     }
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
     unsigned w = 20, h = 15;    // in cells
     Cell::setWidth(40);
@@ -108,7 +120,13 @@ int main(void)
         w * Cell::width(),       h * Cell::height(),
         SDL_WINDOW_SHOWN);
 
-    SnakeGame(window, w, h).run();
+    if (argc == 1) {
+        SnakeGame(window, w, h).run();
+    } else {
+        while (--argc) {
+            SnakeGame(window, w, h, *++argv).run();
+        }
+    }
 
     SDL_DestroyWindow(window);
     SDL_Quit();

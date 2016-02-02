@@ -32,8 +32,9 @@ public:
     static unsigned width();
     // Set the width of a cell
     static void setWidth(unsigned width);
-    // Set the height of the margin to leave at the top of the screen
+    // The height of the margin to leave at the top of the screen
     // before the game grid begins
+    static unsigned getYOffset();
     static void setYOffset(unsigned offset);
 private:
     unsigned x, y;
@@ -98,6 +99,11 @@ inline bool Cell::operator==(const std::pair<unsigned, unsigned>& rhs) const
 inline bool Cell::operator!=(const std::pair<unsigned, unsigned>& rhs) const
 {
     return !(*this == rhs);
+}
+
+inline unsigned Cell::getYOffset()
+{
+    return yOffset;
 }
 
 inline void Cell::setYOffset(unsigned offset)

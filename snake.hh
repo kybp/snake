@@ -15,7 +15,7 @@ private:
 public:
     Snake(SDL_Surface *surface, unsigned x, unsigned y, Direction direction);
     Snake(SDL_Surface *surface, unsigned x, unsigned y, Direction direction,
-          unsigned screenWidth, unsigned screenHeight, unsigned yOffset,
+          unsigned screenWidth, unsigned screenHeight,
           decltype(body.size()) initialLength);
     // Set the snake's next movement to be in the specified direction
     void changeDirection(Direction direction);
@@ -29,8 +29,7 @@ public:
     std::pair<int, int> nextPosition() const;
     const Cell& head() const;
     void growToInitialLength(decltype(body.size()) initialLength,
-                             unsigned screenWidth, unsigned screenHeight,
-                             unsigned yOffset);
+                             unsigned screenWidth, unsigned screenHeight);
     bool willRunIntoSelf() const;
 private:
     Direction direction;

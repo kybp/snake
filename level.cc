@@ -1,4 +1,6 @@
 #include <algorithm>
+#include <fstream>
+#include <iostream>
 #include <memory>
 #include <vector>
 #include <SDL.h>
@@ -10,18 +12,81 @@ namespace {
 }
 
 Level::Level(SDL_Surface *surface, unsigned width, unsigned height,
-             unsigned yOffset, unsigned *score)
+             unsigned *score)
     : score(score), surface(surface),
       alive(true), winnable(false), won(false),
       width(width), height(height),
       snake(std::unique_ptr<Snake>
             { new Snake(surface, height / 2, width / 2, Direction::LEFT,
                         width * Cell::width(),
-                        height * Cell::height() + yOffset,
-                        yOffset,
+                        height * Cell::height() + Cell::getYOffset(),
                         defaultInitialLength)})
 {
     generateRandomFood();
+}
+
+Level::Level(SDL_Surface *surface, unsigned screenWidth, unsigned screenHeight,
+             const char *filename, unsigned *score)
+    : score(score), surface(surface), alive(true), winnable(false), won(false),
+      width(0)
+{
+    std::ifstream file(filename);
+
+    if (!file) {
+        std::cerr << "Can't open file: " << filename << std::endl;
+        exit(1);
+    }
+
+    std::string line;
+    unsigned startingX = 0, startingY = 0;
+    Direction startingDirection = Direction::RIGHT;
+    std::vector<std::pair<unsigned, unsigned>> foodPoints;
+    std::vector<std::pair<unsigned, unsigned>> wallPoints;
+
+    for (height = 0; getline(file, line); ++height) {
+        auto length = line.length();
+        if (length > width) width = length;
+
+        for (unsigned x = 0; x < line.length(); ++x) {
+            switch (line[x]) {
+            case '#': {
+                auto coords = std::pair<unsigned, unsigned>{x, height};
+                wallPoints.push_back(coords);
+            } break;
+            case 'U': case 'D': case 'L': case 'R': {
+                startingX = x;
+                startingY = height;
+                startingDirection = directionFromChar(line[x]);
+            } break;
+            case 'F': {
+                winnable = true;
+                auto coords = std::pair<unsigned, unsigned>{x, height};
+                foodPoints.push_back(coords);
+            } break;
+            case ' ': break;    // ignore empty spaces
+            default:
+                throw std::runtime_error("Invalid charactor in layout");
+            }
+        }
+    }
+
+    Cell::setWidth(screenWidth   / width);
+    Cell::setHeight(screenHeight / height);
+
+    snake = std::unique_ptr<Snake>(
+        new Snake(surface, startingX, startingY, startingDirection));
+
+    for (const auto& coords : foodPoints) {
+        food.push_back(std::unique_ptr<Food>(
+                           new Food(surface, coords.first, coords.second)));
+    }
+
+    for (const auto& coords : wallPoints) {
+        walls.push_back(std::unique_ptr<Wall>(
+                            new Wall(surface, coords.first, coords.second)));
+    }
+
+    if (!winnable) generateRandomFood();
 }
 
 void Level::draw()
@@ -71,6 +136,9 @@ void Level::update()
                     alive = false;
                     won   = true;
                 }
+                // Needed because we erased it, but you can only eat
+                // one food cell in one move anyway
+                break;
             }
         }
     }
