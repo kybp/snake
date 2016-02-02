@@ -19,7 +19,7 @@ Cell::Cell(SDL_Surface *surface, unsigned x, unsigned y, Uint32 color)
     position->h = height();
 }
 
-std::pair<unsigned, unsigned> Cell::nextPosition(Direction direction) const
+std::pair<int, int> Cell::nextPosition(Direction direction) const
 {
     switch (direction) {
     case UP:    return { y - 1, position->y - height() };

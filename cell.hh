@@ -14,7 +14,7 @@ public:
     void draw() const;
     // Move the cell one square of the game grid
     void move(Direction direction);
-    std::pair<unsigned, unsigned> nextPosition(Direction direction) const;
+    std::pair<int, int> nextPosition(Direction direction) const;
     // Return the cell's x position on the game grid
     unsigned xPosition() const;
     // Return the cell's y position on the game grid
