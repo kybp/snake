@@ -26,6 +26,7 @@ public:
     // move()
     void grow();
     void move();
+    std::pair<int, int> nextPosition() const;
     const Cell& head() const;
     void growToInitialLength(decltype(body.size()) initialLength,
                              unsigned screenWidth, unsigned screenHeight,
@@ -80,11 +81,16 @@ inline const Cell& Snake::head() const
 
 inline void Snake::move()
 {
-    auto next = head().nextPosition(direction);
+    auto next = nextPosition();
     unsigned x = next.first, y = next.second;
     body.push_back(std::unique_ptr<Cell>{new Cell(surface, x, y, getColor())});
     if (needsToGrow) needsToGrow = false;
     else body.erase(body.begin());
+}
+
+inline std::pair<int, int> Snake::nextPosition() const
+{
+    return head().nextPosition(direction);
 }
 
 inline bool Snake::willRunIntoSelf() const
