@@ -95,7 +95,7 @@ inline std::pair<int, int> Snake::nextPosition() const
 
 inline bool Snake::willRunIntoSelf() const
 {
-    return *body.front() == head().nextPosition(direction);
+    return *body.front() == nextPosition();
 }
 
 #endif
