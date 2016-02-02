@@ -1,103 +1,58 @@
-#include <fstream>
-#include <iostream>
+#include <algorithm>
 #include <memory>
-#include <stdexcept>
-#include <string>
 #include <vector>
 #include <SDL.h>
 #include "cell.hh"
 #include "food.hh"
 #include "level.hh"
 
-Layout::Layout(SDL_Surface *surface, int offsetInCells,
-               int heightInCells, int widthInCells)
-    : winnable(false), surface(surface),
-      heightInCells(heightInCells + offsetInCells), widthInCells(widthInCells)
-{}
-
-Layout::Layout(SDL_Surface *surface, std::string filename,
-               int offsetInCells)
-    : winnable(false), startingDirection(Direction::RIGHT),
-      surface(surface), widthInCells(0)
+Level::Level(SDL_Surface *surface, unsigned height, unsigned width, int *score)
+    : score(score), surface(surface), alive(true),
+      height(height), width(width),
+      snake(std::unique_ptr<Snake>
+            { new Snake(surface, height / 2, width / 2, Direction::LEFT) })
 {
-    std::ifstream file(filename);
-    auto color = SDL_MapRGB(surface->format, 127, 0, 0);
+    generateRandomFood();
+}
 
-    if (file) {
-        std::string line;
-        for (heightInCells = offsetInCells; getline(file, line);
-             ++heightInCells) {
-            auto length = line.length();
-            if (length > widthInCells) widthInCells = length;
+void Level::draw()
+{
+    snake->draw();
+    for (const auto& cell : food)  cell->draw();
+    for (const auto& cell : walls) cell->draw();
+}
 
-            for (unsigned x = 0; x < line.length(); ++x) {
-                switch (line[x]) {
-                case '#': {
-                    auto cell = std::make_shared<Cell>(
-                        surface, x, heightInCells, color);
-                    layout.push_back(cell);
-                } break;
-                case 'U': case 'D': case 'L': case 'R': {
-                    startingCellX = x;
-                    startingCellY = heightInCells;
-                    startingDirection = directionFromChar(line[x]);
-                } break;
-                case 'F': {
-                    winnable = true;
-                    add_food_at(x, heightInCells);
-                } break;
-                case ' ': break; // ignore empty space
-                default:
-                    throw std::runtime_error("Invalid character in layout");
-                }
-            }
-        }
+void Level::generateRandomFood()
+{
+    int x = rand() % width;
+    int y = rand() % height;
+    food.push_back(std::unique_ptr<Food>(new Food(surface, x, y)));
+}
+
+void Level::update()
+{
+    if (snake->willRunIntoSelf() || snakeWillRunIntoWall()) {
+        alive = false;
     } else {
-        std::cerr << "Can't open file: " << filename << std::endl;
-        exit(1);
-    }
-}
-
-bool Layout::containsCellCoordinates(int x, int y) const
-{
-    for (auto cell : layout) {
-        if (cell->xPositionInCells() == x && cell->yPositionInCells() == y) {
-            return true;
+        snake->move();
+        const Cell& head = snake->head();
+        auto equal = [&head](const std::unique_ptr<Food>& ptr)
+            { return head == *ptr; };
+        if (std::find_if(food.begin(), food.end(), equal) != food.end()) {
+            snake->grow();
+            ++*score;
         }
     }
-    return false;
 }
 
-bool Layout::containsCellCoordinates(const std::pair<int, int>& coordinates)
-    const
+bool Level::snakeWillRunIntoWall() const
 {
-    return containsCellCoordinates(coordinates.first, coordinates.second);
-}
-
-void Layout::draw() const
-{
-    for (auto cell : layout) cell->draw();
-    for (auto cell : food)   cell->draw();
-}
-
-bool Layout::eat_food_at(int pixelX, int pixelY)
-{
-    auto samePosition = [pixelX, pixelY](std::shared_ptr<Food> cell) {
-        return (cell->xPositionInPixels() == pixelX &&
-                cell->yPositionInPixels() == pixelY);
-    };
-
-    decltype(food.begin()) it;
-    if ((it = std::find_if(food.begin(), food.end(), samePosition)) !=
-        food.end()) {
-        food.erase(it);
+    auto next = snake->nextPosition();
+    int x = next.first, y = next.second;
+    if (x < 0 || y < 0 || (unsigned)x >= width || (unsigned)y >= height)
         return true;
+    for (const auto& cell : walls) {
+        if (*cell == next) return true;
     }
     return false;
-}
-
-void Layout::updatePosition()
-{
-    for (auto cell : layout) cell->updatePosition();
-    for (auto cell : food)   cell->updatePosition();
 }

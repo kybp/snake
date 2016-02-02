@@ -6,96 +6,51 @@
 #include <vector>
 #include "cell.hh"
 #include "direction.hh"
+#include "snake.hh"
 
 struct SDL_Surface;
-class Food;
 
-class Layout {
+class Food : public Cell {
 public:
-    Layout(SDL_Surface *surface, int heightInCells, int widthInCells);
-    Layout(SDL_Surface *surface, std::string filename);
-    void add_food_at(int x, int y);
-    void add_food_at(const std::pair<int, int>& coordinates);
-    bool containsCellCoordinates(int x, int y) const;
-    bool containsCellCoordinates(const std::pair<int, int>& coordinates) const;
-    void draw() const;
-    // Return value indicates whether there was food at that position
-    bool eat_food_at(int pixelX, int pixelY);
-    unsigned getHeightInCells() const;
-    unsigned getWidthInCells() const;
-    unsigned getHeightInPixels() const;
-    unsigned getWidthInPixels() const;
-    int getStartingXCell() const;
-    int getStartingYCell() const;
-    Direction getStartingDirection() const;
-    bool isWinnable() const;
-    bool noFoodLeft() const;
-    void updatePosition();
-private:
-    bool winnable;
-    std::vector<std::shared_ptr<Food>> food;
-    std::vector<std::shared_ptr<Cell>> layout;
-    int startingCellX;
-    int startingCellY;
-    Direction startingDirection;
-    SDL_Surface *surface;
-    unsigned heightInCells;
-    unsigned widthInCells;
+    Food(SDL_Surface *surface, int x, int y)
+        : Cell(surface, x, y, SDL_MapRGB(surface->format, 0, 127, 0))
+        {}
 };
 
-inline void Layout::add_food_at(int x, int y)
+class Wall : public Cell {
+public:
+    Wall(SDL_Surface *surface, unsigned x, unsigned y)
+        : Cell(surface, x, y, SDL_MapRGB(surface->format, 127, 0, 0))
+        {}
+};
+
+class Level {
+public:
+    Level(SDL_Surface *surface, unsigned height, unsigned width, int *score);
+    void draw();
+    bool snakeAlive() const;
+    Snake &getSnake() const;
+    bool snakeWillRunIntoWall() const;
+    void update();
+private:
+    void generateRandomFood();
+    int *score;
+    SDL_Surface *surface;
+    bool alive;
+    unsigned height, width;
+    std::unique_ptr<Snake> snake;
+    std::vector<std::unique_ptr<Food>> food;
+    std::vector<std::unique_ptr<Wall>> walls;
+};
+
+inline Snake &Level::getSnake() const
 {
-    food.push_back(std::make_shared<Food>(surface, x, y));
+    return *snake;
 }
 
-inline void Layout::add_food_at(const std::pair<int, int>& coordinates)
+inline bool Level::snakeAlive() const
 {
-    add_food_at(coordinates.first, coordinates.second);
-}
-
-inline unsigned Layout::getHeightInCells() const
-{
-    return heightInCells;
-}
-
-inline unsigned Layout::getWidthInCells() const
-{
-    return widthInCells;
-}
-
-inline unsigned Layout::getHeightInPixels() const
-{
-    return getHeightInCells() * Cell::height();
-}
-
-inline unsigned Layout::getWidthInPixels() const
-{
-    return getWidthInCells() * Cell::width();
-}
-
-inline Direction Layout::getStartingDirection() const
-{
-    return startingDirection;
-}
-
-inline int Layout::getStartingXCell() const
-{
-    return startingCellX;
-}
-
-inline int Layout::getStartingYCell() const
-{
-    return startingCellY;
-}
-
-inline bool Layout::noFoodLeft() const
-{
-    return food.empty();
-}
-
-inline bool Layout::isWinnable() const
-{
-    return winnable;
+    return alive;
 }
 
 #endif
