@@ -12,8 +12,9 @@ struct SDL_Surface;
 
 class Food : public Cell {
 public:
-    Food(SDL_Surface *surface, int x, int y)
-        : Cell(surface, x, y, SDL_MapRGB(surface->format, 0, 127, 0))
+    Food(SDL_Surface *surface, std::pair<unsigned, unsigned> coords)
+        : Cell(surface, coords.first, coords.second,
+               SDL_MapRGB(surface->format, 0, 127, 0))
         {}
 };
 
@@ -33,6 +34,7 @@ public:
     Snake &getSnake() const;
     bool snakeWillRunIntoWall() const;
     void update();
+    bool invalidFoodPosition(const std::pair<unsigned, unsigned>& coords) const;
 private:
     void generateRandomFood();
     unsigned *score;

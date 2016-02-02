@@ -25,9 +25,24 @@ void Level::draw()
 
 void Level::generateRandomFood()
 {
-    int x = rand() % width;
-    int y = rand() % height;
-    food.push_back(std::unique_ptr<Food>(new Food(surface, x, y)));
+    std::pair<unsigned, unsigned> nextFood;
+
+    do nextFood = { rand() % width, rand() % height };
+    while (invalidFoodPosition(nextFood));
+
+    food.push_back(std::unique_ptr<Food>(new Food(surface, nextFood)));
+}
+
+bool Level::snakeWillRunIntoWall() const
+{
+    auto next = snake->nextPosition();
+    int x = next.first, y = next.second;
+    if (x < 0 || y < 0 || (unsigned)x >= width || (unsigned)y >= height)
+        return true;
+    for (const auto& cell : walls) {
+        if (*cell == next) return true;
+    }
+    return false;
 }
 
 void Level::update()
@@ -52,14 +67,11 @@ void Level::update()
     }
 }
 
-bool Level::snakeWillRunIntoWall() const
+bool
+Level::invalidFoodPosition(const std::pair<unsigned, unsigned>& coords) const
 {
-    auto next = snake->nextPosition();
-    int x = next.first, y = next.second;
-    if (x < 0 || y < 0 || (unsigned)x >= width || (unsigned)y >= height)
-        return true;
-    for (const auto& cell : walls) {
-        if (*cell == next) return true;
-    }
+    if (snake->collidesWith(coords)) return true;
+    for (const auto& cell : food)  if (*cell == coords) return true;
+    for (const auto& cell : walls) if (*cell == coords) return true;
     return false;
 }
