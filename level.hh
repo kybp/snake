@@ -1,5 +1,5 @@
-#ifndef LAYOUT_HH
-#define LAYOUT_HH
+#ifndef LEVEL_HH
+#define LEVEL_HH
 
 #include <memory>
 #include <utility>
