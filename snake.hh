@@ -48,14 +48,14 @@ inline bool Snake::collidesWith(const Cell& cell) const
 {
     auto equal = [&cell](const std::unique_ptr<Cell>& ptr)
         { return cell == *ptr; };
-    return std::find_if(body.begin(), body.end(), equal) == body.end();
+    return std::find_if(body.begin(), body.end(), equal) != body.end();
 }
 
 inline bool Snake::collidesWith(const std::pair<unsigned, unsigned>& pos) const
 {
     auto equal = [&pos](const std::unique_ptr<Cell>& ptr)
         { return *ptr == pos; };
-    return std::find_if(body.begin(), body.end(), equal) == body.end();
+    return std::find_if(body.begin(), body.end(), equal) != body.end();
 }
 
 inline void Snake::draw() const
