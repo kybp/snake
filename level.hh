@@ -37,8 +37,8 @@ private:
     void generateRandomFood();
     unsigned *score;
     SDL_Surface *surface;
-    bool alive;
-    unsigned height, width;
+    bool alive, winnable, won;
+    unsigned width, height;
     std::unique_ptr<Snake> snake;
     std::vector<std::unique_ptr<Food>> food;
     std::vector<std::unique_ptr<Wall>> walls;

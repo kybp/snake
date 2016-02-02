@@ -7,7 +7,8 @@
 
 Level::Level(SDL_Surface *surface, unsigned width, unsigned height,
              unsigned *score)
-    : score(score), surface(surface), alive(true), height(height), width(width),
+    : score(score), surface(surface), alive(true), winnable(false), won(false),
+      width(width), height(height),
       snake(std::unique_ptr<Snake>
             { new Snake(surface, height / 2, width / 2, Direction::LEFT) })
 {
@@ -35,12 +36,18 @@ void Level::update()
         alive = false;
     } else {
         snake->move();
-        const Cell& head = snake->head();
-        auto equal = [&head](const std::unique_ptr<Food>& ptr)
-            { return head == *ptr; };
-        if (std::find_if(food.begin(), food.end(), equal) != food.end()) {
-            snake->grow();
-            ++*score;
+        for (auto it = food.begin(); it != food.end(); ++it) {
+            if (snake->head() == **it) {
+                snake->grow();
+                ++*score;
+                food.erase(it);
+                if (!winnable) {
+                    generateRandomFood();
+                } else if (food.empty()) {
+                    alive = false;
+                    won   = true;
+                }
+            }
         }
     }
 }
