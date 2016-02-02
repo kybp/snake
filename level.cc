@@ -5,9 +5,9 @@
 #include "cell.hh"
 #include "level.hh"
 
-Level::Level(SDL_Surface *surface, unsigned height, unsigned width, int *score)
-    : score(score), surface(surface), alive(true),
-      height(height), width(width),
+Level::Level(SDL_Surface *surface, unsigned width, unsigned height,
+             unsigned *score)
+    : score(score), surface(surface), alive(true), height(height), width(width),
       snake(std::unique_ptr<Snake>
             { new Snake(surface, height / 2, width / 2, Direction::LEFT) })
 {

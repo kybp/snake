@@ -26,7 +26,8 @@ public:
 
 class Level {
 public:
-    Level(SDL_Surface *surface, unsigned height, unsigned width, int *score);
+    Level(SDL_Surface *surface, unsigned width, unsigned height,
+          unsigned *score);
     void draw();
     bool snakeAlive() const;
     Snake &getSnake() const;
@@ -34,7 +35,7 @@ public:
     void update();
 private:
     void generateRandomFood();
-    int *score;
+    unsigned *score;
     SDL_Surface *surface;
     bool alive;
     unsigned height, width;
