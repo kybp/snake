@@ -101,8 +101,8 @@ void Level::draw()
 void Level::generateRandomFood()
 {
     static std::default_random_engine e;
-    static std::uniform_int_distribution<unsigned> w(0, width);
-    static std::uniform_int_distribution<unsigned> h(0, height);
+    static std::uniform_int_distribution<unsigned> w(0, width  - 1);
+    static std::uniform_int_distribution<unsigned> h(0, height - 1);
     std::pair<unsigned, unsigned> nextFood;
 
     do nextFood = { w(e), h(e) };
