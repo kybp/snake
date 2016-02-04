@@ -34,8 +34,7 @@ SnakeGame::SnakeGame(SDL_Window *window, unsigned width, unsigned height,
       window(window), surface(SDL_GetWindowSurface(window))
 {
     level = std::unique_ptr<Level>(
-        new Level(surface, width * Cell::width(), height * Cell::height(),
-                  filename, &score));
+        new Level(surface, width, height, filename, &score));
 }
 
 inline void SnakeGame::gameOver()
@@ -108,6 +107,8 @@ int main(int argc, char **argv)
     unsigned w = 20, h = 15;    // in cells
     Cell::setWidth(40);
     Cell::setHeight(40);
+    unsigned screenWidth  = w * Cell::width();
+    unsigned screenHeight = h * Cell::height();
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cerr << "Could not initialize SDL." << std::endl;
@@ -117,14 +118,15 @@ int main(int argc, char **argv)
     SDL_Window *window = SDL_CreateWindow(
         "Snake",
         SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-        w * Cell::width(),       h * Cell::height(),
+        screenWidth,             screenHeight,
         SDL_WINDOW_SHOWN);
 
     if (argc == 1) {
         SnakeGame(window, w, h).run();
     } else {
         while (--argc) {
-            SnakeGame(window, w, h, *++argv).run();
+            SnakeGame(window, screenWidth, screenHeight, *++argv)
+                .run();
         }
     }
 
