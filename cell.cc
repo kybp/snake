@@ -1,4 +1,3 @@
-#include <cstdlib>
 #include <utility>
 #include "cell.hh"
 #include "direction.hh"
