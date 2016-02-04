@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <random>
 #include <vector>
 #include <SDL.h>
 #include "cell.hh"
@@ -99,9 +100,12 @@ void Level::draw()
 
 void Level::generateRandomFood()
 {
+    static std::default_random_engine e;
+    static std::uniform_int_distribution<unsigned> w(0, width);
+    static std::uniform_int_distribution<unsigned> h(0, height);
     std::pair<unsigned, unsigned> nextFood;
 
-    do nextFood = { rand() % width, rand() % height };
+    do nextFood = { w(e), h(e) };
     while (invalidFoodPosition(nextFood));
 
     food.push_back(std::unique_ptr<Food>(new Food(surface, nextFood)));
