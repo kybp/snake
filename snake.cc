@@ -53,7 +53,7 @@ void Snake::growToInitialLength(decltype(body.size()) initialLength,
     while (--initialLength) {
         auto next = nextPosition();
         unsigned x = next.first  * Cell::width();
-        unsigned y = next.second * Cell::height();
+        unsigned y = next.second * Cell::height() + Cell::getYOffset();
         // Give a two cell border to prevent immediate deaths
         if (x < Cell::width()  * 2 ||
             y < Cell::height() * 2 + Cell::getYOffset() ||
