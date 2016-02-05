@@ -24,10 +24,10 @@ Direction invert(Direction direction)
     Direction result;
 
     switch (direction) {
-    case UP:    result = DOWN;
-    case DOWN:  result = UP;
-    case LEFT:  result = RIGHT;
-    case RIGHT: result = LEFT;
+    case UP:    result = DOWN;  break;
+    case DOWN:  result = UP;    break;
+    case LEFT:  result = RIGHT; break;
+    case RIGHT: result = LEFT;  break;
     }
 
     return result;
