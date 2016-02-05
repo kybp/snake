@@ -17,8 +17,10 @@ Level::Level(SDL_Surface *surface, unsigned width, unsigned height,
     : score(score), surface(surface),
       alive(true), winnable(false), won(false),
       width(width), height(height),
+      startingX(width / 2), startingY(height / 2),
+      startingDirection(Direction::LEFT),
       snake(std::unique_ptr<Snake>
-            { new Snake(surface, height / 2, width / 2, Direction::LEFT,
+            { new Snake(surface, startingX, startingY, startingDirection,
                         width * Cell::width(),
                         height * Cell::height() + Cell::getYOffset(),
                         defaultInitialLength)})
@@ -29,7 +31,7 @@ Level::Level(SDL_Surface *surface, unsigned width, unsigned height,
 Level::Level(SDL_Surface *surface, unsigned screenWidth, unsigned screenHeight,
              const char *filename, unsigned *score)
     : score(score), surface(surface), alive(true), winnable(false), won(false),
-      width(0)
+      width(0), startingX(0), startingY(0), startingDirection(Direction::RIGHT)
 {
     std::ifstream file(filename);
 
@@ -39,8 +41,6 @@ Level::Level(SDL_Surface *surface, unsigned screenWidth, unsigned screenHeight,
     }
 
     std::string line;
-    unsigned startingX = 0, startingY = 0;
-    Direction startingDirection = Direction::RIGHT;
     std::vector<std::pair<unsigned, unsigned>> foodPoints;
     std::vector<std::pair<unsigned, unsigned>> wallPoints;
 
@@ -121,6 +121,14 @@ bool Level::snakeWillRunIntoWall() const
         if (*cell == next) return true;
     }
     return false;
+}
+
+void Level::reset()
+{
+    alive = true;
+    *score = 0;
+    snake = std::unique_ptr<Snake>(
+        new Snake(surface, startingX, startingY, startingDirection));
 }
 
 void Level::update()

@@ -80,7 +80,7 @@ void SnakeGame::handleKey(SDL_Keycode keycode)
 void SnakeGame::run()
 {
     Uint32 lastFrame = SDL_GetTicks();
-    while (running && level->snakeAlive()) {
+    while (running && !level->didWin()) {
         SDL_Event e;
         while(SDL_PollEvent(&e) != 0) {
             switch (e.type) {
@@ -96,6 +96,11 @@ void SnakeGame::run()
         if (SDL_GetTicks() - lastFrame >= maxDelay && !paused) {
             level->update();
             level->draw();
+            if (!level->snakeAlive()) {
+                std::cout << "You died with " << score << " points" <<
+                    std::endl;
+                level->reset();
+            }
             SDL_UpdateWindowSurface(window);
             lastFrame = SDL_GetTicks();
         }
@@ -104,7 +109,7 @@ void SnakeGame::run()
 
 int main(int argc, char **argv)
 {
-    unsigned w = 20, h = 15;    // in cells
+    unsigned w = 20, h = 15;
     Cell::setWidth(40);
     Cell::setHeight(40);
     unsigned screenWidth  = w * Cell::width();

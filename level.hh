@@ -35,16 +35,21 @@ public:
           const char *filename, unsigned *score);
     void draw();
     bool snakeAlive() const;
+    bool isWinnable() const;
+    bool didWin() const;
     Snake &getSnake() const;
     bool snakeWillRunIntoWall() const;
     void update();
-    bool invalidFoodPosition(const std::pair<unsigned, unsigned>& coords) const;
+    void reset();
 private:
     void generateRandomFood();
+    bool invalidFoodPosition(const std::pair<unsigned, unsigned>& coords) const;
     unsigned *score;
     SDL_Surface *surface;
     bool alive, winnable, won;
     unsigned width, height;
+    unsigned startingX, startingY;
+    Direction startingDirection;
     std::unique_ptr<Snake> snake;
     std::vector<std::unique_ptr<Food>> food;
     std::vector<std::unique_ptr<Wall>> walls;
@@ -58,6 +63,16 @@ inline Snake &Level::getSnake() const
 inline bool Level::snakeAlive() const
 {
     return alive;
+}
+
+inline bool Level::isWinnable() const
+{
+    return winnable;
+}
+
+inline bool Level::didWin() const
+{
+    return won;
 }
 
 #endif
