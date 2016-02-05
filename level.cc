@@ -71,8 +71,8 @@ Level::Level(SDL_Surface *surface, unsigned screenWidth, unsigned screenHeight,
         }
     }
 
-    Cell::setWidth(screenWidth   / width);
-    Cell::setHeight(screenHeight / height);
+    Cell::setWidth(screenWidth / width);
+    Cell::setHeight((screenHeight - Cell::getYOffset()) / height);
 
     snake = std::unique_ptr<Snake>(
         new Snake(surface, startingX, startingY, startingDirection));

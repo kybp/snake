@@ -1,5 +1,5 @@
-CPPFLAGS = -std=c++11 -g -Wall -Wextra `pkg-config --cflags sdl2`
-LDFLAGS = `pkg-config --libs sdl2`
+CPPFLAGS = -std=c++11 -g -Wall -Wextra `pkg-config --cflags sdl2 SDL2_ttf`
+LDFLAGS = `pkg-config --libs sdl2 SDL2_ttf`
 
 all: $(OBJS) snake
 

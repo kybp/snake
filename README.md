@@ -7,6 +7,9 @@ executable without any arguments, it also supports maps which are
 defined in a simple text file format. To run a game with maps, pass
 the specification files as command line arguments to the program.
 
+This program uses
+[GNU FreeFont](https://www.gnu.org/software/freefont/index.html).
+
 ## Map files
 
 In map files, the character '#' marks a wall that the snake will die
