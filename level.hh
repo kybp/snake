@@ -48,7 +48,7 @@ private:
     SDL_Surface *surface;
     bool alive, winnable, won;
     unsigned width, height;
-    unsigned startingX, startingY;
+    unsigned startingX, startingY, startingLength;
     Direction startingDirection;
     std::unique_ptr<Snake> snake;
     std::vector<std::unique_ptr<Food>> food;

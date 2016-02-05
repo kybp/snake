@@ -14,7 +14,7 @@ Level::Level(SDL_Surface *surface, unsigned width, unsigned height,
       alive(true), winnable(false), won(false),
       width(width), height(height),
       startingX(width / 2), startingY(height / 2),
-      startingDirection(Direction::LEFT),
+      startingLength(initialLength), startingDirection(Direction::LEFT),
       snake(std::unique_ptr<Snake>
             { new Snake(surface, startingX, startingY, startingDirection,
                         width * Cell::width(),
@@ -28,7 +28,8 @@ Level::Level(SDL_Surface *surface, unsigned screenWidth, unsigned screenHeight,
              const char *filename, unsigned *score, unsigned *highScore)
     : score(score), highScore(highScore), surface(surface),
       alive(true), winnable(false), won(false),
-      width(0), startingX(0), startingY(0), startingDirection(Direction::RIGHT)
+      width(0), startingX(0), startingY(0),
+      startingLength(1), startingDirection(Direction::RIGHT)
 {
     std::ifstream file(filename);
 
@@ -124,8 +125,13 @@ void Level::reset()
 {
     alive = true;
     *score = 0;
+    // snake = std::unique_ptr<Snake>(
+    //     new Snake(surface, startingX, startingY, startingDirection));
     snake = std::unique_ptr<Snake>(
-        new Snake(surface, startingX, startingY, startingDirection));
+        new Snake(surface, startingX, startingY, startingDirection,
+                  width * Cell::width(),
+                  height * Cell::height() + Cell::getYOffset(),
+                  startingLength));
 }
 
 void Level::update()
