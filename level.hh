@@ -30,9 +30,9 @@ public:
 class Level {
 public:
     Level(SDL_Surface *surface, unsigned width, unsigned height,
-          unsigned *score);
+          unsigned *score, unsigned *highScore);
     Level(SDL_Surface *surface, unsigned screenWidth, unsigned screenHeight,
-          const char *filename, unsigned *score);
+          const char *filename, unsigned *score, unsigned *highScore);
     void draw();
     bool snakeAlive() const;
     bool isWinnable() const;
@@ -44,7 +44,7 @@ public:
 private:
     void generateRandomFood();
     bool invalidFoodPosition(const std::pair<unsigned, unsigned>& coords) const;
-    unsigned *score;
+    unsigned *score, *highScore;
     SDL_Surface *surface;
     bool alive, winnable, won;
     unsigned width, height;

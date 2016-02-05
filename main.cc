@@ -19,7 +19,7 @@ private:
     void handleKey(SDL_Keycode keycode);
     Uint32 Uint32FromSDL_Color(SDL_Color color);
     bool paused, running;
-    unsigned score;
+    unsigned score, highScore;
     SDL_Window *window;
     SDL_Surface *surface;
     TTF_Font *font;
@@ -32,22 +32,22 @@ const SDL_Color SnakeGame::scoreBackgroundColor = { 127, 0, 0, 0 };
 
 SnakeGame::SnakeGame(SDL_Window *window, unsigned width, unsigned height,
                      TTF_Font *font)
-    : paused(false), running(true), score(0),
+    : paused(false), running(true), score(0), highScore(0),
       window(window), surface(SDL_GetWindowSurface(window)),
       font(font)
 {
     level = std::unique_ptr<Level>(
-        new Level(surface, width, height, &score));
+        new Level(surface, width, height, &score, &highScore));
 }
 
 SnakeGame::SnakeGame(SDL_Window *window, unsigned width, unsigned height,
                      TTF_Font *font, const char *filename)
-    : paused(false), running(true), score(0),
+    : paused(false), running(true), score(0), highScore(0),
       window(window), surface(SDL_GetWindowSurface(window)),
       font(font)
 {
     level = std::unique_ptr<Level>(
-        new Level(surface, width, height, filename, &score));
+        new Level(surface, width, height, filename, &score, &highScore));
 }
 
 inline void SnakeGame::gameOver()
@@ -111,8 +111,8 @@ void SnakeGame::run()
             }
         }
 
-        if (SDL_GetTicks() - lastFrame >= maxDelay && !paused) {
-            level->update();
+        if (SDL_GetTicks() - lastFrame >= maxDelay) {
+            if (!paused) level->update();
             level->draw();
             drawScore();
             if (!level->snakeAlive()) level->reset();
@@ -127,7 +127,10 @@ void SnakeGame::drawScore()
     static const SDL_Rect margin = { 0, 0, surface->w, TTF_FontHeight(font) };
     SDL_FillRect(surface, &margin, Uint32FromSDL_Color(scoreBackgroundColor));
     std::ostringstream scoreDisplay;
+    const char *separator = "      ";
     scoreDisplay << " Score: " << score;
+    scoreDisplay << separator << "High score: " << highScore;
+    if (paused) scoreDisplay << separator << "(paused)";
     const char *scoreString = scoreDisplay.str().c_str();
     SDL_Surface *scoreSurface = TTF_RenderText_Shaded(font, scoreString,
                                                       scoreColor,

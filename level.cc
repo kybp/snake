@@ -13,8 +13,8 @@ namespace {
 }
 
 Level::Level(SDL_Surface *surface, unsigned width, unsigned height,
-             unsigned *score)
-    : score(score), surface(surface),
+             unsigned *score, unsigned *highScore)
+    : score(score), highScore(highScore), surface(surface),
       alive(true), winnable(false), won(false),
       width(width), height(height),
       startingX(width / 2), startingY(height / 2),
@@ -29,8 +29,9 @@ Level::Level(SDL_Surface *surface, unsigned width, unsigned height,
 }
 
 Level::Level(SDL_Surface *surface, unsigned screenWidth, unsigned screenHeight,
-             const char *filename, unsigned *score)
-    : score(score), surface(surface), alive(true), winnable(false), won(false),
+             const char *filename, unsigned *score, unsigned *highScore)
+    : score(score), highScore(highScore), surface(surface),
+      alive(true), winnable(false), won(false),
       width(0), startingX(0), startingY(0), startingDirection(Direction::RIGHT)
 {
     std::ifstream file(filename);
@@ -141,6 +142,7 @@ void Level::update()
             if (snake->head() == **it) {
                 snake->grow();
                 ++*score;
+                if (*score > *highScore) *highScore = *score;
                 food.erase(it);
                 if (!winnable) {
                     generateRandomFood();
