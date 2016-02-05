@@ -1,6 +1,7 @@
 # Snake
 
-This is a Snake game I'm using to practise C++ and SDL.
+This is a Snake game I'm using to practise C++11 and SDL. It requires
+SDL2 and SDL2_ttf.
 
 In addition to a regular Snake game, which can be run by starting the
 executable without any arguments, it also supports maps which are
