@@ -30,7 +30,7 @@ public:
 class Level {
 public:
     Level(SDL_Surface *surface, unsigned width, unsigned height,
-          unsigned *score, unsigned *highScore);
+          unsigned *score, unsigned *highScore, unsigned initialLength);
     Level(SDL_Surface *surface, unsigned screenWidth, unsigned screenHeight,
           const char *filename, unsigned *score, unsigned *highScore);
     void draw();

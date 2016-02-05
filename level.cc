@@ -8,12 +8,8 @@
 #include "cell.hh"
 #include "level.hh"
 
-namespace {
-    const unsigned defaultInitialLength = 4;
-}
-
 Level::Level(SDL_Surface *surface, unsigned width, unsigned height,
-             unsigned *score, unsigned *highScore)
+             unsigned *score, unsigned *highScore, unsigned initialLength)
     : score(score), highScore(highScore), surface(surface),
       alive(true), winnable(false), won(false),
       width(width), height(height),
@@ -23,7 +19,7 @@ Level::Level(SDL_Surface *surface, unsigned width, unsigned height,
             { new Snake(surface, startingX, startingY, startingDirection,
                         width * Cell::width(),
                         height * Cell::height() + Cell::getYOffset(),
-                        defaultInitialLength)})
+                        initialLength)})
 {
     generateRandomFood();
 }

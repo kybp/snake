@@ -1,3 +1,4 @@
+#include <cctype>
 #include <iostream>
 #include <sstream>
 #include <SDL.h>
@@ -5,10 +6,21 @@
 #include "direction.hh"
 #include "level.hh"
 
+inline bool isInteger(const char *s)
+{
+    while (std::isdigit(*s))
+        ++s;
+    return *s == '\0';
+}
+
+namespace {
+    const unsigned defaultInitialLength = 4;
+}
+
 class SnakeGame {
 public:
     SnakeGame(SDL_Window *window, unsigned width, unsigned height,
-              TTF_Font *font);
+              TTF_Font *font, unsigned initialLength);
     SnakeGame(SDL_Window *window, unsigned width, unsigned height,
               TTF_Font *font, const char *filename);
     void run();
@@ -31,13 +43,13 @@ const SDL_Color SnakeGame::scoreColor = { 0xff, 0xff, 0xff, 0 };
 const SDL_Color SnakeGame::scoreBackgroundColor = { 127, 0, 0, 0 };
 
 SnakeGame::SnakeGame(SDL_Window *window, unsigned width, unsigned height,
-                     TTF_Font *font)
+                     TTF_Font *font, unsigned initialLength)
     : paused(false), running(true), score(0), highScore(0),
       window(window), surface(SDL_GetWindowSurface(window)),
       font(font)
 {
     level = std::unique_ptr<Level>(
-        new Level(surface, width, height, &score, &highScore));
+        new Level(surface, width, height, &score, &highScore, initialLength));
 }
 
 SnakeGame::SnakeGame(SDL_Window *window, unsigned width, unsigned height,
@@ -172,12 +184,19 @@ int main(int argc, char **argv)
         screenWidth,             screenHeight,
         SDL_WINDOW_SHOWN);
 
-    if (argc == 1) {
-        SnakeGame(window, w, h, font).run();
-    } else {
-        while (--argc) {
-            SnakeGame(window, screenWidth, screenHeight, font, *++argv).run();
+    try {
+        if (argc == 1) {
+            SnakeGame(window, w, h, font, defaultInitialLength).run();
+        } else if (argc == 2 && isInteger(argv[1])) {
+            SnakeGame(window, w, h, font, atoi(argv[1])).run();
+        } else {
+            while (--argc) {
+                SnakeGame(window, screenWidth, screenHeight, font, *++argv)
+                    .run();
+            }
         }
+    } catch (std::exception& e) {
+        std::cerr << e.what() << std::endl;
     }
 
     TTF_CloseFont(font);
