@@ -2,10 +2,12 @@
 #include <stdexcept>
 #include "direction.hh"
 
-static const Direction UP    = Direction::UP;
-static const Direction DOWN  = Direction::DOWN;
-static const Direction LEFT  = Direction::LEFT;
-static const Direction RIGHT = Direction::RIGHT;
+namespace {
+    const Direction UP    = Direction::UP;
+    const Direction DOWN  = Direction::DOWN;
+    const Direction LEFT  = Direction::LEFT;
+    const Direction RIGHT = Direction::RIGHT;
+}
 
 Direction directionFromChar(char c)
 {
