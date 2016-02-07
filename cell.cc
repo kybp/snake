@@ -22,12 +22,16 @@ Cell::Cell(SDL_Surface *surface, unsigned x, unsigned y, Uint32 color)
 
 std::pair<int, int> Cell::nextPosition(Direction direction) const
 {
+    std::pair<int, int> result;
+
     switch (direction) {
-    case UP:    return { x, y - 1 };
-    case DOWN:  return { x, y + 1 };
-    case LEFT:  return { x - 1, y };
-    case RIGHT: return { x + 1, y };
+    case UP:    result = { x, y - 1 }; break;
+    case DOWN:  result = { x, y + 1 }; break;
+    case LEFT:  result = { x - 1, y }; break;
+    case RIGHT: result = { x + 1, y }; break;
     }
+
+    return result;
 }
 
 void Cell::move(Direction direction)
