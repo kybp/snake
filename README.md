@@ -17,7 +17,7 @@ This program uses
 In map files, the character '#' marks a wall that the snake will die
 if it touches.
 
-The letter 'U', 'D', 'L', or 'R' mark the snake's starting location,
+The letter 'U', 'D', 'L', or 'R' marks the snake's starting location,
 with the letter indicating its starting direction. If multiple
 starting locations are given, the last one, reading the map left to
 right then top to bottom, will be used. If no starting location is
@@ -27,10 +27,9 @@ The letter 'F' marks a spot where food will be generated. Any number
 of food cells can be indicated; once they are all eaten, play will
 progress to the next level. If no food cells are given on the map, it
 will loop infinitely like a regular game, just with the walls and/or
-starting position.
+starting position. Blank spaces mark blank spaces.
 
-Blank spaces mark blank spaces. The window size is constant, but when
-a map is loaded there will be as many rows as there are lines in the
-map file, and as many columns as the longest line has
-characters. Displayed cells will be scaled so that the map is as close
-as possible to fitting the window.
+The window size is constant, but when a map is loaded there will be as
+many rows as there are lines in the map file, and as many columns as
+the longest line has characters. Displayed cells will be scaled so
+that the map is as close as possible to fitting the window.
