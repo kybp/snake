@@ -132,6 +132,10 @@ void Level::reset()
                   width * Cell::width(),
                   height * Cell::height() + Cell::getYOffset(),
                   startingLength));
+    if (!winnable && snake->collidesWith(*food.back())) {
+        food.pop_back();
+        generateRandomFood();
+    }
 }
 
 void Level::update()
