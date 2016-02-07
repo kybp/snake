@@ -4,9 +4,10 @@ This is a Snake game I'm using to practise C++11 and SDL. It requires
 SDL2 and SDL2_ttf.
 
 In addition to a regular Snake game, which can be run by starting the
-executable without any arguments, it also supports maps which are
-defined in a simple text file format. To run a game with maps, pass
-the specification files as command line arguments to the program.
+executable without any arguments, or with one integer argument
+specifying initial length, it also supports maps which are defined in
+a simple text file format. To run a game with maps, pass the
+specification files as command line arguments to the program.
 
 This program uses
 [GNU FreeFont](https://www.gnu.org/software/freefont/index.html).
