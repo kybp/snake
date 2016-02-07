@@ -1,4 +1,5 @@
 #include <cctype>
+#include <cstdlib>
 #include <iostream>
 #include <sstream>
 #include <SDL.h>
@@ -188,7 +189,7 @@ int main(int argc, char **argv)
         if (argc == 1) {
             SnakeGame(window, w, h, font, defaultInitialLength).run();
         } else if (argc == 2 && isInteger(argv[1])) {
-            SnakeGame(window, w, h, font, atoi(argv[1])).run();
+            SnakeGame(window, w, h, font, std::atoi(argv[1])).run();
         } else {
             while (--argc) {
                 SnakeGame(window, screenWidth, screenHeight, font, *++argv)
