@@ -92,8 +92,8 @@ void Level::draw()
 {
     SDL_FillRect(surface, nullptr, 0);
     snake->draw();
-    for (const auto& cell : food)  cell->draw();
-    for (const auto& cell : walls) cell->draw();
+    std::for_each(food.begin(),  food.end(),  std::mem_fn(&Food::draw));
+    std::for_each(walls.begin(), walls.end(), std::mem_fn(&Wall::draw));
 }
 
 void Level::generateRandomFood()
@@ -125,8 +125,6 @@ void Level::reset()
 {
     alive = true;
     *score = 0;
-    // snake = std::unique_ptr<Snake>(
-    //     new Snake(surface, startingX, startingY, startingDirection));
     snake = std::unique_ptr<Snake>(
         new Snake(surface, startingX, startingY, startingDirection,
                   width * Cell::width(),
