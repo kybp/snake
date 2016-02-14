@@ -2,6 +2,7 @@
 #define SNAKE_HH
 
 #include <algorithm>
+#include <functional>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -59,8 +60,7 @@ inline bool Snake::collidesWith(const std::pair<unsigned, unsigned>& pos) const
 
 inline void Snake::draw() const
 {
-    auto fn = [](const std::unique_ptr<Cell>& cell) { cell->draw(); };
-    std::for_each(body.begin(), body.end(), fn);
+    std::for_each(body.begin(), body.end(), std::mem_fn(&Cell::draw));
 }
 
 inline Uint32 Snake::getColor() const
